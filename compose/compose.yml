@@ -1,0 +1,91 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/home_assistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+  esphome:
+    container_name: esphome
+    image: ghcr.io/esphome/esphome
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/esphome/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    privileged: true
+    network_mode: host
+    environment:
+      - USERNAME=${ESPHOME_USERNAME}
+      - PASSWORD=${ESPHOME_PASSWORD}
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/mosquitto:/etc/mosquitto
+      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/data:/mosquitto/data
+      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/log:/mosquitto/log
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/zigbee2mqtt_data:/app/data
+      - /run/udev:/run/udev:ro
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      - TZ=Europe/London
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+  matter-server:
+    image: ghcr.io/home-assistant-libs/python-matter-server:stable
+    container_name: matter-server
+    restart: unless-stopped
+    network_mode: host
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/matter/data:/data/
+      - /run/dbus:/run/dbus:ro
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/postgres_data:/var/lib/postgresql/data
+
+  quart_app:
+    build: ${HOME_DRIVE}/quart_app
+    container_name: quart_app
+    depends_on:
+      - postgres
+    environment:
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: 1883
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      MQTT_TOPIC: "#"  # subscribe to all topics
+    volumes:
+      - ${HOME_DRIVE}/Code/robot_containers/quart_app:/app
+    ports:
+      - "5000:5000"
