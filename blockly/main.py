@@ -24,11 +24,11 @@ async def favicon():
 async def run_code():
     data = await request.get_json()
     code = data.get("code", "")
-    with open("user_code.py", "w") as f:
+    with open("/app/tmp/user_code.py", "w") as f:
         f.write(code)
     try:
         proc = await asyncio.create_subprocess_exec(
-            "python", "user_code.py",
+            "python", "/app/tmp/user_code.py",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT
         )
