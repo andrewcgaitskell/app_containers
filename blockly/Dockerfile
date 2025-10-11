@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
 
 # Download latest Blockly bundle (includes Python generator)
 RUN mkdir -p /app/static/blockly \
-    && curl -L -o /app/static/blockly/index.js https://unpkg.com/blockly@12.3.1/index.js
+    && curl -L -o /app/static/blockly/blockly_compressed.js https://unpkg.com/blockly@12.3.1/blockly_compressed.js \
+    && curl -L -o /app/static/blockly/blocks_compressed.js https://unpkg.com/blockly@12.3.1/blocks_compressed.js \
+    && curl -L -o /app/static/blockly/msg_en.js https://unpkg.com/blockly@12.3.1/msg/en.js \
+    && curl -L -o /app/static/blockly/python_compressed.js https://unpkg.com/blockly@12.3.1/python_compressed.js
 
 # Copy Python requirements and install
 COPY requirements.txt ./
