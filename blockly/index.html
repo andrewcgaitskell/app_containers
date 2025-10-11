@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <title>Blockly Python Runner</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-    <script src="https://unpkg.com/blockly/python.min.js"></script>
+    <!-- Correct Python generator package for Blockly -->
+    <script src="https://unpkg.com/@blockly/python@latest/dist/index.js"></script>
     <style>
       html, body { height: 100%; margin: 0; }
       #blocklyDiv { height: 480px; width: 100%; }
@@ -17,6 +18,10 @@
     <button onclick="runPython()">Run Python</button>
     <pre id="output"></pre>
     <script>
+      // Optional: Debug logging to confirm Blockly.Python is loaded
+      console.log('Blockly:', Blockly);
+      console.log('Blockly.Python:', Blockly.Python);
+
       const workspace = Blockly.inject('blocklyDiv', {
         toolbox: {
           "kind": "flyoutToolbox",
