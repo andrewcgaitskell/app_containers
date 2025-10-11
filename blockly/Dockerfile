@@ -20,6 +20,8 @@ COPY main.py ./
 # Copy custom index.html to override Blockly demo page
 COPY index.html /blockly/demos/code/index.html
 
+COPY favicon.ico /app/favicon.ico
+
 # Optionally: Show debug info
 RUN ls -lh /app && head -10 /app/main.py && ls -lh /blockly/demos/code
 
