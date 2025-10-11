@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Set working directory
+WORKDIR /app
+
 # Install required packages
 RUN apt-get update && apt-get install -y \
     git \
@@ -8,32 +11,24 @@ RUN apt-get update && apt-get install -y \
 # Get Blockly static files
 RUN git clone --depth 1 https://github.com/google/blockly.git /blockly
 
-# Install latest Quart and asyncio-mqtt
-RUN pip install --no-cache-dir 'quart>=0.19' asyncio-mqtt
+# Copy requirements and install
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Debug: check Quart CLI and version
-RUN which quart && quart --version
+# Debug: check Quart version and CLI
+RUN quart --version || echo "Quart CLI not found"
+RUN pip show quart
 
-# Debug: list installed Python packages
-RUN pip list
-
-# Create app directory
-WORKDIR /app
-
-# Copy backend
-COPY backend.py /app/backend.py
+# Copy application code
+COPY main.py ./
 
 # Copy custom index.html to override Blockly demo page
 COPY index.html /blockly/demos/code/index.html
 
-# Debug: show backend.py exists and print first 10 lines
-RUN ls -lh /app && head -10 /app/backend.py
-
-# Debug: show directory structure for blockly
-RUN ls -lhR /blockly/demos/code
+# Optional: Check that files are in place
+RUN ls -lh /app && head -10 /app/main.py && ls -lh /blockly/demos/code
 
 # Expose port
 EXPOSE 5001
 
-CMD ["quart", "run", "--host=0.0.0.0", "--port=5001", "--app=backend:app"]
-
+CMD ["python", "main.py"]
