@@ -21,6 +21,6 @@ COPY backend.py /app/backend.py
 COPY index.html /blockly/demos/code/index.html
 
 # Expose port
-EXPOSE 5000
+EXPOSE 5001
 
-CMD ["quart", "run", "--host=0.0.0.0", "--port=5000", "--app=backend:app"]
+CMD ["quart", "run", "--host=0.0.0.0", "--port=5001", "--app=backend:app"]
