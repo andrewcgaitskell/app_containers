@@ -1,6 +1,7 @@
 services:
   esphome:
     container_name: esphome
+    user: "${UID}:${GID}"
     image: ghcr.io/esphome/esphome
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
@@ -14,9 +15,10 @@ services:
       - USERNAME=${ESPHOME_USERNAME}
       - PASSWORD=${ESPHOME_PASSWORD}
   mosquitto:
+    container_name: mosquitto
+    user: "${UID}:${GID}"
     image: eclipse-mosquitto
     hostname: mosquitto
-    container_name: mosquitto
     restart: unless-stopped
     ports:
       - "1883:1883"
@@ -28,6 +30,7 @@ services:
       - ${HOME_DRIVE}/Code/robot_containers/mosquitto/log:/mosquitto/log
   zigbee2mqtt:
     container_name: zigbee2mqtt
+    user: "${UID}:${GID}"
     image: koenkk/zigbee2mqtt
     volumes:
       - ${HOME_DRIVE}/Code/robot_containers/zigbee2mqtt_data:/app/data
@@ -40,6 +43,7 @@ services:
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
   postgres:
+    user: "${UID}:${GID}"
     image: postgres:15
     container_name: postgres
     restart: unless-stopped
@@ -52,6 +56,7 @@ services:
     volumes:
       - ${HOME_DRIVE}/Code/robot_containers/postgres_data:/var/lib/postgresql/data
   quart_app:
+    user: "${UID}:${GID}"
     build: ${HOME_DRIVE}/Code/robot_containers/quart_app
     container_name: quart_app
     depends_on:
@@ -72,6 +77,7 @@ services:
   blockly:
     build: ${HOME_DRIVE}/Code/robot_containers/blockly
     container_name: blockly
+    user: "${UID}:${GID}"
     depends_on:
       - postgres
       - mosquitto
