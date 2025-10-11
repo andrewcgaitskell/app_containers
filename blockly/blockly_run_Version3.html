@@ -1,0 +1,47 @@
+<!-- Save this as /blockly/demos/code/index.html to override demo page -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Blockly Python Runner</title>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly/python.min.js"></script>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      #blocklyDiv { height: 480px; width: 100%; }
+      #output { background: #eee; padding: 1em; min-height: 3em; }
+    </style>
+  </head>
+  <body>
+    <h1>Blockly Python Runner</h1>
+    <div id="blocklyDiv"></div>
+    <button onclick="runPython()">Run Python</button>
+    <pre id="output"></pre>
+    <script>
+      const workspace = Blockly.inject('blocklyDiv', {
+        toolbox: {
+          "kind": "flyoutToolbox",
+          "contents": [
+            { "kind": "block", "type": "controls_if" },
+            { "kind": "block", "type": "math_number" },
+            { "kind": "block", "type": "math_arithmetic" },
+            { "kind": "block", "type": "text" },
+            { "kind": "block", "type": "text_print" }
+          ]
+        }
+      });
+
+      function runPython() {
+        const code = Blockly.Python.workspaceToCode(workspace);
+        fetch('/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        })
+        .then(r => r.json())
+        .then(j => document.getElementById('output').textContent = j.output)
+        .catch(e => document.getElementById('output').textContent = e);
+      }
+    </script>
+  </body>
+</html>
