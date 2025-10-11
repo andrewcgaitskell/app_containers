@@ -1,20 +1,25 @@
 from quart import Quart, request, jsonify, send_from_directory
 import asyncio
+import os
 
-app = Quart(__name__, static_folder='/blockly/demos/code')
+app = Quart(__name__, static_folder="static")
 
+# Serve the main UI
 @app.route("/")
 async def blockly_index():
-    return await send_from_directory(app.static_folder, 'index.html')
+    return await send_from_directory(".", "index.html")
 
-@app.route("/<path:path>")
-async def serve_static(path):
-    return await send_from_directory(app.static_folder, path)
+# Serve static files (Blockly JS, etc.) from /static
+@app.route("/static/<path:filename>")
+async def static_files(filename):
+    return await send_from_directory("static", filename)
 
+# Favicon
 @app.route("/favicon.ico")
 async def favicon():
-    return await send_from_directory("/app", "favicon.ico")
+    return await send_from_directory(".", "favicon.ico")
 
+# Run user code endpoint
 @app.route("/run", methods=["POST"])
 async def run_code():
     data = await request.get_json()
@@ -36,5 +41,5 @@ async def run_code():
     except Exception as e:
         return jsonify({"output": str(e)}), 400
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+#if __name__ == "__main__":
+#    app.run(host="0.0.0.0", port=5001)
