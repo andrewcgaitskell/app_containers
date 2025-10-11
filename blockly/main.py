@@ -11,6 +11,10 @@ async def blockly_index():
 async def serve_static(path):
     return await send_from_directory(app.static_folder, path)
 
+@app.route("/favicon.ico")
+async def favicon():
+    return await send_from_directory("/app", "favicon.ico")
+
 @app.route("/run", methods=["POST"])
 async def run_code():
     data = await request.get_json()
