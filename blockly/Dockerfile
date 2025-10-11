@@ -2,6 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+RUN mkdir -p /app/tmp && chmod -R a+w /app/tmp
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
