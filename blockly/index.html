@@ -3,16 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>Blockly Python Runner</title>
-    <!-- Serve Blockly and generators locally from your container! -->
-    <script src="static/blockly/blockly_compressed.js"></script>
-    <script src="static/blockly/blocks_compressed.js"></script>
-    <script src="static/blockly/python_compressed.js"></script>
-    <script src="static/blockly/msg_en.js"></script>
+    <!-- Serve Blockly from your own container for reliability -->
+    <script src="static/blockly/index.js"></script>
     <style>
       html, body { height: 100%; margin: 0; }
       #blocklyDiv { height: 480px; width: 100%; }
       #output { background: #eee; padding: 1em; min-height: 3em; }
     </style>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
   </head>
   <body>
     <h1>Blockly Python Runner</h1>
@@ -20,7 +18,7 @@
     <button onclick="runPython()">Run Python</button>
     <pre id="output"></pre>
     <script>
-      // Optional: Debug logging to confirm Blockly.Python is loaded
+      // Debug: confirm Blockly and Blockly.Python are loaded
       console.log('Blockly:', Blockly);
       console.log('Blockly.Python:', Blockly.Python);
 
