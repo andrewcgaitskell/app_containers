@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone --depth 1 https://github.com/google/blockly.git /blockly
 
 # Install Quart
-RUN pip install quart
+RUN pip install quart asyncio-mqtt
 
 # Create app directory
 WORKDIR /app
