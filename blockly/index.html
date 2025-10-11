@@ -3,9 +3,11 @@
   <head>
     <meta charset="utf-8">
     <title>Blockly Python Runner</title>
-    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-    <!-- Correct Python generator package for Blockly -->
-    <script src="https://unpkg.com/@blockly/python@latest/dist/index.js"></script>
+    <!-- Serve Blockly and generators locally from your container! -->
+    <script src="static/blockly/blockly_compressed.js"></script>
+    <script src="static/blockly/blocks_compressed.js"></script>
+    <script src="static/blockly/python_compressed.js"></script>
+    <script src="static/blockly/msg_en.js"></script>
     <style>
       html, body { height: 100%; margin: 0; }
       #blocklyDiv { height: 480px; width: 100%; }
