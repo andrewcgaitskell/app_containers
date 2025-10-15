@@ -32,8 +32,7 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/mosquitto:/etc/mosquitto
-      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/config:/mosquitto/config
       - ${HOME_DRIVE}/Code/robot_containers/mosquitto/data:/mosquitto/data
       - ${HOME_DRIVE}/Code/robot_containers/mosquitto/log:/mosquitto/log
   zigbee2mqtt:
