@@ -3,7 +3,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/home_assistant/config:/config
+      - ${HOME_DRIVE}/Code/home_assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     restart: unless-stopped
@@ -15,7 +15,7 @@ services:
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/esphome/config:/config
+      - ${HOME_DRIVE}/Code/esphome/config:/config
       - /etc/localtime:/etc/localtime:ro
     restart: always
     privileged: true
@@ -32,14 +32,14 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/config:/mosquitto/config
-      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/data:/mosquitto/data
-      - ${HOME_DRIVE}/Code/robot_containers/mosquitto/log:/mosquitto/log
+      - ${HOME_DRIVE}/Code/mosquitto/config:/mosquitto/config
+      - ${HOME_DRIVE}/Code/mosquitto/data:/mosquitto/data
+      - ${HOME_DRIVE}/Code/mosquitto/log:/mosquitto/log
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/zigbee2mqtt_data:/app/data
+      - ${HOME_DRIVE}/Code/zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro
     restart: unless-stopped
     ports:
@@ -56,7 +56,7 @@ services:
     security_opt:
       - apparmor:unconfined
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/matter/data:/data/
+      - ${HOME_DRIVE}/Code/matter/data:/data/
       - /run/dbus:/run/dbus:ro
   postgres:
     image: postgres:15
@@ -69,7 +69,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/postgres_data:/var/lib/postgresql/data
+      - ${HOME_DRIVE}/Code/postgres_data:/var/lib/postgresql/data
 
   quart_app:
     build: ${HOME_DRIVE}/Code/robot_containers/quart_app
