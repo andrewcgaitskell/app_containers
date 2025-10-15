@@ -1,22 +1,22 @@
 services:
   homeassistant:
     container_name: homeassistant
-    user: "${UID}:${GID}" 
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - ${HOME_DRIVE}/Code/home_assistant/config:/config
+      - /opt/data/home_assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     restart: unless-stopped
     privileged: true
     network_mode: host
+
   esphome:
     container_name: esphome
     image: ghcr.io/esphome/esphome
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
     volumes:
-      - ${HOME_DRIVE}/Code/esphome/config:/config
+      - /opt/data/esphome/config:/config
       - /etc/localtime:/etc/localtime:ro
     restart: always
     privileged: true
@@ -24,9 +24,9 @@ services:
     environment:
       - USERNAME=${ESPHOME_USERNAME}
       - PASSWORD=${ESPHOME_PASSWORD}
+
   mosquitto:
     image: eclipse-mosquitto
-    user: "${UID}:${GID}" 
     hostname: mosquitto
     container_name: mosquitto
     restart: unless-stopped
@@ -34,15 +34,15 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ${HOME_DRIVE}/Code/mosquitto/config:/mosquitto/config
-      - ${HOME_DRIVE}/Code/mosquitto/data:/mosquitto/data
-      - ${HOME_DRIVE}/Code/mosquitto/log:/mosquitto/log
+      - /opt/data/mosquitto/config:/mosquitto/config
+      - /opt/data/mosquitto/data:/mosquitto/data
+      - /opt/data/mosquitto/log:/mosquitto/log
+
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt
-    user: "${UID}:${GID}" 
     volumes:
-      - ${HOME_DRIVE}/Code/zigbee2mqtt_data:/app/data
+      - /opt/data/zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro
     restart: unless-stopped
     ports:
@@ -51,17 +51,18 @@ services:
       - TZ=Europe/London
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
+
   matter-server:
     image: ghcr.io/home-assistant-libs/python-matter-server:stable
-    user: "${UID}:${GID}" 
     container_name: matter-server
     restart: unless-stopped
     network_mode: host
     security_opt:
       - apparmor:unconfined
     volumes:
-      - ${HOME_DRIVE}/Code/matter/data:/data/
+      - /opt/data/matter/data:/data/
       - /run/dbus:/run/dbus:ro
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -73,12 +74,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${HOME_DRIVE}/Code/postgres_data:/var/lib/postgresql/data
+      - /opt/data/postgres_data:/var/lib/postgresql/data
 
   quart_app:
-    build: ${HOME_DRIVE}/Code/robot_containers/quart_app
+    build: /opt/data/robot_containers/quart_app
     container_name: quart_app
-    user: "${UID}:${GID}" 
     depends_on:
       - postgres
       - mosquitto
@@ -91,14 +91,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       MQTT_TOPIC: "#"  # subscribe to all topics
     volumes:
-      - ${HOME_DRIVE}/Code/robot_containers/quart_app:/app
+      - /opt/data/robot_containers/quart_app:/app
     ports:
       - "5000:5000"
-  
+
   blockly:
-    build: ${HOME_DRIVE}/Code/robot_containers/blockly
+    build: /opt/data/robot_containers/blockly
     container_name: blockly
-    user: "${UID}:${GID}" 
     depends_on:
       - postgres
       - mosquitto
