@@ -26,7 +26,8 @@ services:
       - PASSWORD=${ESPHOME_PASSWORD}
 
   mosquitto:
-    image: eclipse-mosquitto
+    build:
+      context: ../mosquitto
     hostname: mosquitto
     container_name: mosquitto
     restart: unless-stopped
