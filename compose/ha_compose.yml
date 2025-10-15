@@ -1,6 +1,7 @@
 services:
   homeassistant:
     container_name: homeassistant
+    user: "${UID}:${GID}" 
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
       - ${HOME_DRIVE}/Code/home_assistant/config:/config
@@ -25,6 +26,7 @@ services:
       - PASSWORD=${ESPHOME_PASSWORD}
   mosquitto:
     image: eclipse-mosquitto
+    user: "${UID}:${GID}" 
     hostname: mosquitto
     container_name: mosquitto
     restart: unless-stopped
@@ -38,6 +40,7 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt
+    user: "${UID}:${GID}" 
     volumes:
       - ${HOME_DRIVE}/Code/zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro
@@ -50,6 +53,7 @@ services:
       - /dev/ttyUSB0:/dev/ttyUSB0
   matter-server:
     image: ghcr.io/home-assistant-libs/python-matter-server:stable
+    user: "${UID}:${GID}" 
     container_name: matter-server
     restart: unless-stopped
     network_mode: host
@@ -74,6 +78,7 @@ services:
   quart_app:
     build: ${HOME_DRIVE}/Code/robot_containers/quart_app
     container_name: quart_app
+    user: "${UID}:${GID}" 
     depends_on:
       - postgres
       - mosquitto
@@ -93,6 +98,7 @@ services:
   blockly:
     build: ${HOME_DRIVE}/Code/robot_containers/blockly
     container_name: blockly
+    user: "${UID}:${GID}" 
     depends_on:
       - postgres
       - mosquitto
