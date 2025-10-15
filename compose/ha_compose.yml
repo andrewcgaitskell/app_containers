@@ -35,7 +35,6 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - /opt/data/mosquitto/config:/mosquitto/config
       - /opt/data/mosquitto/data:/mosquitto/data
       - /opt/data/mosquitto/log:/mosquitto/log
 
