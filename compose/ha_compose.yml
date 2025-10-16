@@ -77,7 +77,7 @@ services:
       - /opt/data/postgres_data:/var/lib/postgresql/data
 
   quart_app:
-    build: /opt/data/robot_containers/quart_app
+    build: /opt/data/app_containers/quart_app
     container_name: quart_app
     depends_on:
       - postgres
@@ -91,7 +91,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       MQTT_TOPIC: "#"  # subscribe to all topics
     volumes:
-      - /opt/data/robot_containers/quart_app:/app
+      - /opt/data/app_containers/quart_app:/app
     ports:
       - "5000:5000"
 
