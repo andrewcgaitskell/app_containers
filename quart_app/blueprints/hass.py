@@ -23,6 +23,7 @@ def _hass_headers() -> dict:
 async def call_hass_service(domain: str, service: str, service_data: dict) -> Tuple[int, Any]:
     """Call Home Assistant service (async) using the application's shared aiohttp session."""
     url = f"{HASS_URL.rstrip('/')}/api/services/{domain}/{service}"
+    print("Full Hass URL:>>>", url)
     headers = _hass_headers()
     logging.info("Calling HA service %s.%s with data %s", domain, service, service_data)
     session: aiohttp.ClientSession = current_app.http_session
@@ -37,6 +38,7 @@ async def call_hass_service(domain: str, service: str, service_data: dict) -> Tu
 async def get_entity_state(entity_id: str) -> Tuple[int, Any]:
     """Get entity state from Home Assistant."""
     url = f"{HASS_URL.rstrip('/')}/api/states/{entity_id}"
+    print("Full Entity URL:>>>", url)
     headers = _hass_headers()
     session: aiohttp.ClientSession = current_app.http_session
     async with session.get(url, headers=headers) as resp:
