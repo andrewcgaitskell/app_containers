@@ -7,7 +7,7 @@ from quart import Quart, jsonify
 from aiomqtt import Client
 
 # Register blueprint import (must be after other imports)
-from quart_app.blueprints.hass import hass_bp
+from blueprints.hass import hass_bp
 
 # Setup logging
 logging.basicConfig(
