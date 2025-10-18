@@ -89,6 +89,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      HASS_TOKEN: ${HASS_TOKEN}
+      HASS_URL: ${HASS_URL}
       MQTT_TOPIC: "#"  # subscribe to all topics
     volumes:
       - /opt/data/app_containers/quart_app:/app
