@@ -77,7 +77,9 @@ services:
       - /opt/data/postgres_data:/var/lib/postgresql/data
 
   quart_app:
-    build: /opt/data/app_containers/quart_app
+    build:
+      context: ../quart_app
+      dockerfile: Dockerfile
     container_name: quart_app
     depends_on:
       - postgres
