@@ -119,7 +119,6 @@ services:
       # compose lives in repo/compose, Dockerfile lives in repo/jupyter (sibling dir)
       context: ../jupyter
       dockerfile: Dockerfile
-    image: jupyter-local:latest
     # run container process as root so it can write to the host bind mount /opt/data
     ports:
       - "8889:8888"
@@ -134,7 +133,6 @@ services:
       # compose lives in repo/compose, Dockerfile lives in repo/dbeavercloud (sibling dir)
       context: ../dbeaver
       dockerfile: Dockerfile
-    image: dbeavercloud:latest
     # run container process as root so it can write to the host bind mount /opt/data
     ports:
       # map host port 8892 to the container's CloudBeaver port 8978
