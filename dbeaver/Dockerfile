@@ -1,4 +1,4 @@
-FROM dbeaver/cloudbeaver:latest
+FROM docker.io/dbeaver/cloudbeaver:latest
 
 # Keep image minimal — reuse official CloudBeaver image.
 WORKDIR /opt/cloudbeaver
