@@ -98,7 +98,9 @@ services:
       - "5000:5000"
 
   blockly:
-    build: /opt/data/robot_containers/blockly
+    build:
+      context: ../blockly
+      dockerfile: Dockerfile
     container_name: blockly
     depends_on:
       - postgres
