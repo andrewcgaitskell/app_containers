@@ -20,4 +20,4 @@ EXPOSE 8888
 USER root
 
 # Start Jupyter Lab with a simple token (change/remove token as needed)
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=my-token"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=my-token" "--allow-root"]
