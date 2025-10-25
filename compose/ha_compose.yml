@@ -113,3 +113,18 @@ services:
       MQTT_TOPIC: "#"  # subscribe to all topics
     ports:
       - "5001:5001"
+
+  jupyter:
+    build:
+      # compose lives in repo/compose, Dockerfile lives in repo/jupyter (sibling dir)
+      context: ../jupyter
+      dockerfile: Dockerfile
+    image: jupyter-local:latest
+    # run container process as root so it can write to the host bind mount /opt/data
+    ports:
+      - "8889:8888"
+    volumes:
+      - /opt/data/notebooks:/home/jovyan/work
+    working_dir: /home/jovyan/work
+    command: start-notebook.py --NotebookApp.token='my-secret-token'
+    restart: unless-stopped
