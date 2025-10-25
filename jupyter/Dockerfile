@@ -1,23 +1,23 @@
-FROM docker.io/jupyter/base-notebook:latest
+FROM python:3.11-slim
 
-# Switch to root so we can change ownership
-USER root
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Ensure workdir exists and make the jovyan home + workdir owned by root
-# NOTE: changing ownership of the jovyan home to root will make the notebook
-# process run as root (see USER below). This is intentional per your request.
-RUN mkdir -p /home/jovyan/work \
- && chown -R root:root /home/jovyan \
- && chown -R root:root /home/jovyan/work
+# Minimal runtime + jupyterlab
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends git ca-certificates build-essential \
+ && pip install --no-cache-dir jupyterlab \
+ && apt-get purge -y --auto-remove build-essential \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# Keep working directory as requested
-WORKDIR /home/jovyan/work
+# Keep workdir outside any user home and match the host bind-mount /opt/data
+RUN mkdir -p /opt/data
+WORKDIR /opt/data
 
-ENV JUPYTER_ENABLE_LAB=yes
 EXPOSE 8888
 
-# Run the container processes as root (jupyter will start as root)
+# Run as root per your preference so bind-mounted /opt/data is writable by default
 USER root
 
-# Start Jupyter Lab (adjust command/flags in compose if you prefer a token)
-CMD ["start.sh", "jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
+# Start Jupyter Lab with a simple token (change/remove token as needed)
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=my-token"]
