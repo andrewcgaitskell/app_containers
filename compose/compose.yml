@@ -128,3 +128,19 @@ services:
     working_dir: /home/jovyan/work
     command: start-notebook.py --NotebookApp.token='my-secret-token'
     restart: unless-stopped
+
+  dbeavercloud:
+    build:
+      # compose lives in repo/compose, Dockerfile lives in repo/dbeavercloud (sibling dir)
+      context: ../dbeaver
+      dockerfile: Dockerfile
+    image: dbeavercloud:latest
+    # run container process as root so it can write to the host bind mount /opt/data
+    ports:
+      # map host port 8892 to the container's CloudBeaver port 8978
+      - "8892:8978"
+    volumes:
+      # persist CloudBeaver workspace in /opt/data on the host
+      - /opt/data/dbeaver:/opt/cloudbeaver/work
+    working_dir: /opt/cloudbeaver
+    restart: unless-stopped
