@@ -120,16 +120,17 @@ services:
 
   jupyter:
     build:
-      # compose lives in repo/compose, Dockerfile lives in repo/jupyter (sibling dir)
       context: ../jupyter
       dockerfile: Dockerfile
-    # run container process as root so it can write to the host bind mount /opt/data
+    # ensure an arm64 image is used/pulled/built on arm64 hosts
+    platform: linux/arm64
+    user: "root"
     ports:
       - "8889:8888"
     volumes:
-      - /opt/data/notebooks:/home/jovyan/work
-    working_dir: /home/jovyan/work
-    command: start-notebook.py --NotebookApp.token='my-secret-token'
+      # host /opt/data -> container workdir (keeps workdir away from home dirs)
+      - /opt/data:/opt/data
+    working_dir: /opt/data
     restart: unless-stopped
 
   dbeavercloud:
