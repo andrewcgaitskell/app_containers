@@ -1,17 +1,17 @@
-# Use Debian as the base image (includes /bin/bash)
-FROM debian:latest
+# Use a lightweight base image that supports Docker CLI installation
+FROM alpine:latest
 
-# Install curl for health checks and make sure bash is present
-RUN apt-get update && apt-get install -y \
+# Install bash, curl, and Docker CLI
+RUN apk --no-cache add \
+    bash \
     curl \
-    bash && \
-    apt-get clean
+    docker-cli
 
-# Copy the monitoring script into the container
+# Copy the monitoring script to the container
 COPY monitor_homeassistant.sh /usr/local/bin/monitor_homeassistant.sh
 
 # Make the script executable
 RUN chmod +x /usr/local/bin/monitor_homeassistant.sh
 
-# Set the monitoring script as the default command
+# Set the default command to execute the monitoring script
 CMD ["/usr/local/bin/monitor_homeassistant.sh"]
