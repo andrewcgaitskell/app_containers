@@ -5,7 +5,7 @@ CONTAINER_NAME="homeassistant"
 
 # Health check URL (modify this if Home Assistant is configured on a different port)
 # use container name as hostname
-HEALTH_URL="http://home_assistant:8123"
+HEALTH_URL="http://homeassistant:8123"
 
 # Log file (inside the container)
 LOGFILE="/var/log/monitor.log"
