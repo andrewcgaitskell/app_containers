@@ -10,6 +10,15 @@ services:
     privileged: true
     network_mode: host
 
+  homeassistant-monitor:
+    container_name: homeassistant-monitor
+    build:
+      context: ../mosquitto
+      dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Allow the monitor to restart containers
+    restart: always
+
   esphome:
     container_name: esphome
     image: ghcr.io/esphome/esphome
