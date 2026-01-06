@@ -4,7 +4,7 @@
 CONTAINER_NAME="homeassistant"
 
 # URL of the Home Assistant API (replace localhost if different)
-HEALTH_URL="http://homeassistant:8123"
+HEALTH_URL="http://0.0.0.0:8123"
 
 # Log file (inside the container for logs)
 LOGFILE="/var/log/monitor.log"
