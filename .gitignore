@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Ignore everything inside the data directory and its subdirectories
+data/**
+
+# Allow README files in the data directory and all its subdirectories
+!data/**/ReadMe.md
