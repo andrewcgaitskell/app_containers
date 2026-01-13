@@ -20,6 +20,11 @@ services:
       - /opt/data/health:/var/log
     restart: always
     network_mode: host
+    logging:
+      driver: "local"
+      options:
+        max-size: "20m"
+        max-file: "5"
 
   esphome:
     container_name: esphome
