@@ -149,17 +149,21 @@ services:
     working_dir: /opt/data
     restart: unless-stopped
 
-  dbeavercloud:
-    build:
-      # compose lives in repo/compose, Dockerfile lives in repo/dbeavercloud (sibling dir)
-      context: ../dbeaver
-      dockerfile: Dockerfile
-    # run container process as root so it can write to the host bind mount /opt/data
-    ports:
-      # map host port 8892 to the container's CloudBeaver port 8978
-      - "8892:8978"
-    volumes:
-      # persist CloudBeaver workspace in /opt/data on the host
-      - /opt/data/dbeaver:/opt/cloudbeaver/work
-    working_dir: /opt/cloudbeaver
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:${CLOUDBEAVER_TAG:-latest}
+    container_name: cloudbeaver
     restart: unless-stopped
+
+    ports:
+      - "${CB_PORT:-8978}:8978"
+
+    environment:
+      - TZ=${CB_TZ:-Etc/UTC}
+      # Optional initial setup (only effective on first run / empty workspace)
+      - CB_SERVER_NAME=${CB_SERVER_NAME:-CloudBeaver}
+      - CB_ADMIN_NAME=${CB_ADMIN_NAME:-}
+      - CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD:-}
+
+    volumes:
+      # This is the key line: bind your host folder to the workspace path
+      - /opt/data/dbeaver:/opt/cloudbeaver/workspace
