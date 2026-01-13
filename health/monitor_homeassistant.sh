@@ -22,7 +22,7 @@ LOGFILE="/var/log/monitor.log"                  # Where we write logs (persisted
 MAX_LOG_SIZE=$((20 * 1024 * 1024))              # 20 MB – when to trim the log
 KEEP_LINES=2500                                 # Keep roughly the last 2500 lines when trimming
 
-CHECK_INTERVAL=30                               # Seconds between checks
+CHECK_INTERVAL=300                              # Seconds between checks - 5 minutes
 
 # ────────────────────────────────────────────────
 #  SETUP
