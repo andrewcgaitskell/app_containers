@@ -34,14 +34,33 @@ MQTT_TOPIC = os.environ.get("MQTT_TOPIC", "#")
 async def init_db():
     logging.info("Initializing database...")
     try:
+        # Step 1: connect to default 'postgres' db to check/create the 'data' database
+        sys_conn = await asyncpg.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASS,
+            database="postgres"
+        )
+        exists = await sys_conn.fetchval(
+            "SELECT 1 FROM pg_database WHERE datname = 'data'"
+        )
+        if not exists:
+            logging.info("Database 'data' not found, creating...")
+            await sys_conn.execute("CREATE DATABASE data;")
+        await sys_conn.close()
+
+        # Step 2: connect to 'data' db to check/create schema, set timezone, create table
         conn = await asyncpg.connect(
             host=DB_HOST,
             user=DB_USER,
             password=DB_PASS,
-            database=DB_NAME
+            database="data"
         )
+
+        await conn.execute("CREATE SCHEMA IF NOT EXISTS data;")
+
         await conn.execute("""
-        CREATE TABLE IF NOT EXISTS mqtt_messages (
+        CREATE TABLE IF NOT EXISTS data.mqtt_messages (
             id SERIAL PRIMARY KEY,
             topic TEXT NOT NULL,
             qos SMALLINT,
@@ -50,6 +69,9 @@ async def init_db():
             received_at TIMESTAMPTZ DEFAULT NOW()
         );
         """)
+
+        await conn.execute("ALTER DATABASE data SET timezone TO 'Europe/London';")
+
         await conn.close()
         logging.info("Database initialized.")
     except Exception as e:
@@ -62,10 +84,10 @@ async def write_message(topic, qos, retain, payload):
             host=DB_HOST,
             user=DB_USER,
             password=DB_PASS,
-            database=DB_NAME
+            database="data"
         )
         await conn.execute("""
-            INSERT INTO mqtt_messages (topic, qos, retain, payload)
+            INSERT INTO data.mqtt_messages (topic, qos, retain, payload)
             VALUES ($1, $2, $3, $4)
         """, topic, qos, retain, json.dumps(payload))
         await conn.close()
