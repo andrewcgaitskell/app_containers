@@ -1,3 +1,5 @@
+# THESE NOTES RELATE TO TP NOT WORK!
+
 # Intro
 
 I tried to use BBC Microbit Version of Micropython to implement Non Blocking Asynchronous Processing, by the asyncio version for Micropython was not available.
