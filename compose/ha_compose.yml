@@ -80,7 +80,7 @@ services:
       - /run/dbus:/run/dbus:ro
 
   postgres:
-    image: postgres:15
+    image: postgres:18
     container_name: postgres
     restart: unless-stopped
     environment:
