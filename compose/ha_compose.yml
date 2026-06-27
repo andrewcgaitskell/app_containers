@@ -90,7 +90,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /opt/data/postgres_data:/var/lib/postgresql/data
+      - /opt/data/postgres_data:/var/lib/postgresql
 
   quart_app:
     build:
