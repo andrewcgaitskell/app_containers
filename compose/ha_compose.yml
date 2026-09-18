@@ -47,6 +47,7 @@ services:
     hostname: mosquitto
     container_name: mosquitto
     restart: unless-stopped
+    network_mode: host
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -64,6 +65,7 @@ services:
       - /opt/data/zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro
     restart: unless-stopped
+    network_mode: host
     ports:
       - "127.0.0.1:8080:8080"   # frontend only reachable from the Pi itself
     environment:
@@ -94,6 +96,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "127.0.0.1:5432:5432"
+    network_mode: host
     volumes:
       - /opt/data/postgres_data:/var/lib/postgresql
 
@@ -119,6 +122,7 @@ services:
       - /opt/data/app_containers/quart_app:/app
     ports:
       - "127.0.0.1:5000:5000"
+    network_mode: host
 
   blockly:
     build:
@@ -138,6 +142,7 @@ services:
       MQTT_TOPIC: "#"  # subscribe to all topics
     ports:
       - "127.0.0.1:5001:5001"
+    network_mode: host
 
   jupyter:
     build:
@@ -161,6 +166,8 @@ services:
 
     ports:
       - "127.0.0.1:${CB_PORT:-8978}:8978"
+    
+    network_mode: host
 
     environment:
       - TZ=${CB_TZ:-Etc/UTC}
