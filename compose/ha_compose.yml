@@ -49,8 +49,8 @@ services:
     restart: unless-stopped
     network_mode: host
     ports:
-      - "127.0.0.1:1883:1883"
-      - "127.0.0.1:9001:9001"
+      - "1883:1883"
+      - "9001:9001"
     volumes:
       - /opt/data/mosquitto/data:/mosquitto/data
       - /opt/data/mosquitto/log:/mosquitto/log
@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
     network_mode: host
     ports:
-      - "127.0.0.1:8080:8080"   # frontend only reachable from the Pi itself
+      - "8080:8080"   # frontend only reachable from the Pi itself
     environment:
       - TZ=Europe/London
     devices:
@@ -95,7 +95,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
     network_mode: host
     volumes:
       - /opt/data/postgres_data:/var/lib/postgresql
@@ -121,7 +121,7 @@ services:
     volumes:
       - /opt/data/app_containers/quart_app:/app
     ports:
-      - "127.0.0.1:5000:5000"
+      - "5000:5000"
     network_mode: host
 
   blockly:
@@ -141,7 +141,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       MQTT_TOPIC: "#"  # subscribe to all topics
     ports:
-      - "127.0.0.1:5001:5001"
+      - "5001:5001"
     network_mode: host
 
   jupyter:
@@ -151,8 +151,9 @@ services:
     # ensure an arm64 image is used/pulled/built on arm64 hosts
     platform: linux/arm64
     user: "root"
+    network_mode: host
     ports:
-      - "127.0.0.1:8889:8888"
+      - "8889:8888"
     volumes:
       # host /opt/data -> container workdir (keeps workdir away from home dirs)
       - /opt/data:/opt/data
@@ -165,7 +166,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "127.0.0.1:${CB_PORT:-8978}:8978"
+      - "${CB_PORT:-8978}:8978"
     
     network_mode: host
 
