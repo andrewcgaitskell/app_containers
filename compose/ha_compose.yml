@@ -163,4 +163,4 @@ services:
 
     volumes:
       # This is the key line: bind your host folder to the workspace path
-      - /opt/data/dbeaver:/opt/cloudbeaver/work
+      - /opt/data/dbeaver:/opt/cloudbeaver/workspace
