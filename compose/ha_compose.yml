@@ -82,15 +82,12 @@ services:
       dockerfile: Dockerfile
     container_name: postgres
     restart: unless-stopped
-    command: [
-      "postgres", 
-      "-c", "hba_file=/etc/postgresql/pg_hba.conf", 
-      "-c", "listen_addresses=127.0.0.1"
-    ]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      # This forces the Postgres engine to accept the config file, overriding any entrypoint wrapper script
+      PGOPTIONS: "-c hba_file=/etc/postgresql/pg_hba.conf"
     network_mode: host
     volumes:
       - /opt/data/app_containers/postgres/quart:/app
