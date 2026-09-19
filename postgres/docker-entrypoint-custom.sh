@@ -4,10 +4,6 @@ set -e
 # Forward termination signals to child processes for clean shutdown
 trap 'echo "Caught signal, shutting down..."; kill $POSTGRES_PID $QUART_PID 2>/dev/null; wait' SIGTERM SIGINT
 
-# Enforce the version-controlled pg_hba.conf on every start, overriding
-# whatever's currently on the persisted data volume
-cp /pg_hba_custom.conf /var/lib/postgresql/data/pg_hba.conf
-
 # Start PostgreSQL using the default entrypoint script in the background
 docker-entrypoint.sh postgres &
 POSTGRES_PID=$!
