@@ -93,6 +93,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     network_mode: host
     volumes:
+      - /opt/data/app_containers/postgres/quart:/app
       - /opt/data/postgres_data/data:/var/lib/postgresql
       - /opt/data/postgres_data/logs:/logs
       - /opt/data/postgres_data/backups:/backups
