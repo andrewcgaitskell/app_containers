@@ -19,7 +19,7 @@ services:
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/data/health:/opt/data/health
+      - /opt/data/health:/var/log
 
   esphome:
     container_name: esphome
