@@ -82,6 +82,7 @@ services:
       dockerfile: Dockerfile
     container_name: postgres
     restart: unless-stopped
+    command: ["postgres", "-c", "listen_addresses=127.0.0.1"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
