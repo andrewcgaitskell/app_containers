@@ -30,7 +30,7 @@ RUN chmod 0644 /etc/cron.d/health-crontab \
     && crontab /etc/cron.d/health-crontab
 
 # Ensure log/state directories exist so scripts don't fail on first run
-RUN mkdir -p /var/log /var/lib/health /opt/data/health
+RUN mkdir -p /var/log /var/lib/health
 
 # cron -f keeps the process in the foreground so Docker can track/restart it
 ENTRYPOINT ["cron", "-f"]
