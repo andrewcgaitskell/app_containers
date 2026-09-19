@@ -4,9 +4,10 @@ set -e
 # Forward termination signals to child processes for clean shutdown
 trap 'echo "Caught signal, shutting down..."; kill $POSTGRES_PID $QUART_PID 2>/dev/null; wait' SIGTERM SIGINT
 
-# Start PostgreSQL using the default entrypoint script in the background
-docker-entrypoint.sh postgres &
+# CORRECT: Append "$@" to forward your Docker Compose 'command' flags straight to the process
+docker-entrypoint.sh postgres "$@" &
 POSTGRES_PID=$!
+
 
 # Wait for PostgreSQL to be ready, using the real runtime credentials
 echo "Waiting for PostgreSQL to start..."
