@@ -11,20 +11,15 @@ services:
     network_mode: host
 
   health:
-    container_name: health
     build:
       context: ../health
       dockerfile: Dockerfile
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  # Allow the monitor to restart containers
-      - /opt/data/health:/var/log
-    restart: always
+    container_name: health
+    restart: unless-stopped
     network_mode: host
-    logging:
-      driver: "local"
-      options:
-        max-size: "20m"
-        max-file: "5"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/data/health:/opt/data/health
 
   esphome:
     container_name: esphome
