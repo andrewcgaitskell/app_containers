@@ -163,4 +163,4 @@ services:
       - CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD:-}
   
     volumes:
-      - /opt/data/dbeaver:/opt/cloudbeaver/workspace
+      - /opt/data/cloudbeaver:/opt/cloudbeaver/workspace
