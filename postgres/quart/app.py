@@ -54,7 +54,7 @@ async def trigger_data_dump():
 
         subprocess.run([
             "pg_dump",
-            "-U", "pythonuser",
+            "-U", "pi5ha",
             "-d", "data",
             "-f", backup_file
         ], check=True, env=env)
@@ -95,7 +95,7 @@ async def trigger_data_data_only():
         subprocess.run([
             "pg_dump",
             "--data-only",  # Include data inserts only
-            "-U", "pythonuser",
+            "-U", "pi5ha",
             "-d", "data",
             "-f", backup_file
         ], check=True, env=env)
