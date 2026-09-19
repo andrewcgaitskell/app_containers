@@ -11,7 +11,7 @@
 set -u
 
 LOGFILE="/var/log/speedtest.log"
-CSV_FILE="/opt/data/health/speedtest.csv"
+CSV_FILE="/var/log/speedtest.csv"
 
 mkdir -p "$(dirname "$LOGFILE")" "$(dirname "$CSV_FILE")"
 
