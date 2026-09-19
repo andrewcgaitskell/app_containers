@@ -82,7 +82,7 @@ services:
       dockerfile: Dockerfile
     container_name: postgres
     restart: unless-stopped
-    command: ["postgres", "-c", "listen_addresses=127.0.0.1"]
+    command: ["postgres", "-c", "hba_file=/etc/postgresql/pg_hba.conf"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -91,6 +91,7 @@ services:
     volumes:
       - /opt/data/app_containers/postgres/quart:/app
       - /opt/data/postgres_data/data:/var/lib/postgresql
+      - /opt/data/app_containers/postgres/custom_hba.conf:/etc/postgresql/pg_hba.conf
       - /opt/data/postgres_data/logs:/logs
       - /opt/data/postgres_data/backups:/backups
 
