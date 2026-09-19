@@ -95,7 +95,7 @@ services:
     volumes:
       - /opt/data/app_containers/postgres/quart:/app
       - /opt/data/postgres_data/data:/var/lib/postgresql
-      - /opt/data/app_containers/postgres/custom_hba.conf:/etc/postgresql/pg_hba.conf
+      - /opt/data/app_containers/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
       - /opt/data/postgres_data/logs:/logs
       - /opt/data/postgres_data/backups:/backups
 
