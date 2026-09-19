@@ -1,0 +1,13 @@
+# Health container crontab — all automated checks live here
+# Format: minute hour day month weekday command
+
+# Home Assistant responsiveness check — every 5 minutes
+*/5 * * * * root /scripts/ha-health-monitor.sh
+
+# Trigger Postgres data dump — once daily at 06:01
+1 6 * * * root /scripts/pg-dump-trigger.sh
+
+# Internet speed test — every 10 minutes
+*/10 * * * * root /scripts/speedtest-check.sh
+
+# Blank line required at end of file for cron to parse it correctly
