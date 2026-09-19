@@ -14,6 +14,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip and install Quart in the virtual environment
 RUN pip install --upgrade pip && pip install quart asyncio asyncpg python-dotenv aiofiles
 
+COPY pg_hba.conf /pg_hba_custom.conf
+
 # Copy a custom entrypoint script
 COPY docker-entrypoint-custom.sh /docker-entrypoint-custom.sh
 RUN chmod +x /docker-entrypoint-custom.sh
