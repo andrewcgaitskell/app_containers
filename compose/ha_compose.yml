@@ -148,19 +148,19 @@ services:
     restart: unless-stopped
 
   cloudbeaver:
-    image: dbeaver/cloudbeaver:${CLOUDBEAVER_TAG:-latest}
+    build:
+      context: ../cloudbeaver
+      dockerfile: Dockerfile
     container_name: cloudbeaver
     restart: unless-stopped
   
     network_mode: host
-
+  
     environment:
       - TZ=${CB_TZ:-Etc/UTC}
-      # Optional initial setup (only effective on first run / empty workspace)
       - CB_SERVER_NAME=${CB_SERVER_NAME:-CloudBeaver}
       - CB_ADMIN_NAME=${CB_ADMIN_NAME:-}
       - CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD:-}
-
+  
     volumes:
-      # This is the key line: bind your host folder to the workspace path
       - /opt/data/dbeaver:/opt/cloudbeaver/workspace
