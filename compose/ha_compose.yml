@@ -148,13 +148,12 @@ services:
     restart: unless-stopped
 
   cloudbeaver:
-    build:
-      context: ../cloudbeaver
-      dockerfile: Dockerfile
+    image: dbeaver/cloudbeaver:${CLOUDBEAVER_TAG:-latest}
     container_name: cloudbeaver
     restart: unless-stopped
   
-    network_mode: host
+    ports:
+      - "127.0.0.1:8978:8978"
   
     environment:
       - TZ=${CB_TZ:-Etc/UTC}
@@ -163,4 +162,4 @@ services:
       - CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD:-}
   
     volumes:
-      - /opt/data/cloudbeaver:/opt/cloudbeaver/workspace
+      - /opt/data/dbeaver:/opt/cloudbeaver/workspace
