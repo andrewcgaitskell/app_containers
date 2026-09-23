@@ -7,15 +7,27 @@
 # message when the state changes or when connectivity is down, so a
 # frequent cron schedule (e.g. every 5 minutes) doesn't flood the broker.
 #
+# Uses the dedicated Python venv (see net-speedtest-setup.sh) for MQTT
+# publishing via paho-mqtt/mqtt_publish.py, so no system-wide
+# mosquitto-clients package is required.
+#
 # Intended crontab entry (every 5 minutes):
 #   */5 * * * * /path/to/net-connectivity-check.sh >> /var/log/net-connectivity-check.log 2>&1
 #
-# Requires: ping, mosquitto_pub (from mosquitto-clients package)
-#   sudo apt install mosquitto-clients
+# Requires: ping (usually preinstalled), plus the venv from
+#   net-speedtest-setup.sh, and mqtt_publish.py alongside this script.
 
 set -u
 
 ### ---- Configuration ---------------------------------------------------
+
+# Location of the dedicated venv created by net-speedtest-setup.sh, and
+# the mqtt_publish.py helper that ships alongside this script.
+VENV_DIR="/opt/net-monitor/venv"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MQTT_PUBLISH_PY="${SCRIPT_DIR}/mqtt_publish.py"
+
+VENV_PYTHON="${VENV_DIR}/bin/python3"
 
 # Hosts to ping. Using more than one avoids false positives if a single
 # host is temporarily unreachable/rate-limiting ICMP.
@@ -49,16 +61,31 @@ mqtt_publish() {
     local topic="$1"
     local payload="$2"
     local retain_flag=()
-    [[ "${3:-}" == "retain" ]] && retain_flag=(-r)
+    [[ "${3:-}" == "retain" ]] && retain_flag=(--retain)
 
     local auth_args=()
     if [[ -n "$MQTT_USER" ]]; then
-        auth_args=(-u "$MQTT_USER" -P "$MQTT_PASS")
+        auth_args=(--username "$MQTT_USER" --password "$MQTT_PASS")
     fi
 
-    mosquitto_pub -h "$MQTT_HOST" -p "$MQTT_PORT" "${auth_args[@]}" \
-        -t "$topic" -m "$payload" "${retain_flag[@]}"
+    "$VENV_PYTHON" "$MQTT_PUBLISH_PY" \
+        --host "$MQTT_HOST" --port "$MQTT_PORT" \
+        --topic "$topic" --payload "$payload" \
+        "${retain_flag[@]}" "${auth_args[@]}"
 }
+
+### ---- Sanity checks -------------------------------------------------------
+
+if [[ ! -x "$VENV_PYTHON" ]]; then
+    echo "$(date -Iseconds) ERROR: venv not found at ${VENV_DIR}." >&2
+    echo "Run net-speedtest-setup.sh first." >&2
+    exit 1
+fi
+
+if [[ ! -f "$MQTT_PUBLISH_PY" ]]; then
+    echo "$(date -Iseconds) ERROR: mqtt_publish.py not found at ${MQTT_PUBLISH_PY}." >&2
+    exit 1
+fi
 
 ### ---- Connectivity check -------------------------------------------------
 
