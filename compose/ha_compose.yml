@@ -134,6 +134,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       MQTT_TOPIC: "#"  # subscribe to all topics
     network_mode: host
+    volumes:
+      - /opt/data/blockly:/usr/share/nginx/html
 
   jupyter:
     build:
