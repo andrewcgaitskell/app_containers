@@ -30,7 +30,8 @@ RUN mkdir -p "$(dirname "$VENV_DIR")" \
 # Scripts
 COPY ha-health-monitor.sh /scripts/ha-health-monitor.sh
 COPY pg-dump-trigger.sh /scripts/pg-dump-trigger.sh
-COPY speedtest-check.sh /scripts/speedtest-check.sh
+COPY net-speedtest-daily.sh /scripts/net-speedtest-daily.sh
+COPY net-connectivity-check.sh /scripts/net-connectivity-check.sh
 COPY mqtt_publish.py /scripts/mqtt_publish.py
 RUN chmod +x /scripts/*.sh
 
