@@ -8,7 +8,7 @@ from quart import Blueprint, current_app, jsonify, request, Response
 hass_bp = Blueprint("hass", __name__)
 
 # Read defaults from environment; blueprint will use current_app.http_session for requests.
-HASS_URL = os.environ.get("HASS_URL", "http://homeassistant.local:8123")
+HASS_URL = os.environ.get("HASS_URL", "http://pi5ha.local:8123")
 HASS_TOKEN = os.environ.get("HASS_TOKEN")  # required at runtime
 
 def _hass_headers() -> dict:
