@@ -126,9 +126,9 @@ services:
       - postgres
       - mosquitto
     environment:
-      MQTT_BROKER: mosquitto
+      MQTT_BROKER: localhost
       MQTT_PORT: 1883
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: localhost
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
