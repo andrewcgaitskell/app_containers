@@ -8,7 +8,7 @@ RUN npm run build
 # Stage 2: serve the built files with nginx
 FROM nginx:alpine
 
-# Listen on 5001 instead of the default 80 (needed with network_mode: host)
+# Listen on localhost:5001 only, instead of the default port 80 (needed with network_mode: host)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Keep a copy of the build outside the web root (a volume will cover the web root)
