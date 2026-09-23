@@ -21,13 +21,13 @@ app = Quart(__name__)
 app.register_blueprint(hass_bp)
 
 # DB Connection
-DB_HOST = os.environ.get("POSTGRES_HOST", "postgres")
+DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
 DB_USER = os.environ.get("POSTGRES_USER", "mqttuser")
 DB_PASS = os.environ.get("POSTGRES_PASSWORD", "mqttpassword")
-DB_NAME = os.environ.get("POSTGRES_DB", "mqttdb")
+DB_NAME = os.environ.get("POSTGRES_DB", "data")
 
 # MQTT Config
-MQTT_BROKER = os.environ.get("MQTT_BROKER", "mosquitto")
+MQTT_BROKER = os.environ.get("MQTT_BROKER", "localhost")
 MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
 MQTT_TOPIC = os.environ.get("MQTT_TOPIC", "#")
 
