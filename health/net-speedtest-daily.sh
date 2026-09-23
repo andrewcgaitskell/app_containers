@@ -7,21 +7,29 @@
 # separate anomaly message only when speeds fall below configured
 # thresholds (or the test fails outright).
 #
-# Intended crontab entry (once daily, e.g. 03:17):
+# Uses a dedicated Python venv (see net-speedtest-setup.sh) so
+# speedtest-cli and paho-mqtt don't need to be installed system-wide.
+#
+# One-time setup:
+#   ./net-speedtest-setup.sh
+#
+# Intended crontab entry (once daily, e.g. 03:17). Cron runs a minimal
+# environment, so call scripts by full path — no venv activation needed,
+# since we invoke the venv's binaries directly:
 #   17 3 * * * /path/to/net-speedtest-daily.sh >> /var/log/net-speedtest-daily.log 2>&1
-#
-# Requires: speedtest-cli and mosquitto_pub (mosquitto-clients), plus jq
-#   sudo apt install speedtest-cli mosquitto-clients jq
-#
-# Note: speedtest-cli (the open-source Python tool) is used here because
-# it's simple to parse. If you prefer Ookla's official "speedtest" CLI
-# instead, its --format=json output differs slightly (fields are named
-# download.bandwidth / upload.bandwidth in bytes/sec, ping.latency, and
-# results.url) — swap the extraction section marked below accordingly.
 
 set -u
 
 ### ---- Configuration ---------------------------------------------------
+
+# Location of the dedicated venv created by net-speedtest-setup.sh, and
+# the mqtt_publish.py helper that ships alongside this script.
+VENV_DIR="/opt/net-monitor/venv"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MQTT_PUBLISH_PY="${SCRIPT_DIR}/mqtt_publish.py"
+
+VENV_PYTHON="${VENV_DIR}/bin/python3"
+VENV_SPEEDTEST="${VENV_DIR}/bin/speedtest-cli"
 
 # Expected minimums in Mbps. Set these to comfortably below your normal
 # measured speed so ordinary variance doesn't trigger false alarms.
@@ -49,22 +57,37 @@ mqtt_publish() {
     local topic="$1"
     local payload="$2"
     local retain_flag=()
-    [[ "${3:-}" == "retain" ]] && retain_flag=(-r)
+    [[ "${3:-}" == "retain" ]] && retain_flag=(--retain)
 
     local auth_args=()
     if [[ -n "$MQTT_USER" ]]; then
-        auth_args=(-u "$MQTT_USER" -P "$MQTT_PASS")
+        auth_args=(--username "$MQTT_USER" --password "$MQTT_PASS")
     fi
 
-    mosquitto_pub -h "$MQTT_HOST" -p "$MQTT_PORT" "${auth_args[@]}" \
-        -t "$topic" -m "$payload" "${retain_flag[@]}"
+    "$VENV_PYTHON" "$MQTT_PUBLISH_PY" \
+        --host "$MQTT_HOST" --port "$MQTT_PORT" \
+        --topic "$topic" --payload "$payload" \
+        "${retain_flag[@]}" "${auth_args[@]}"
 }
+
+### ---- Sanity checks -------------------------------------------------------
+
+if [[ ! -x "$VENV_PYTHON" || ! -x "$VENV_SPEEDTEST" ]]; then
+    echo "$(date -Iseconds) ERROR: venv not found or incomplete at ${VENV_DIR}." >&2
+    echo "Run net-speedtest-setup.sh first." >&2
+    exit 1
+fi
+
+if [[ ! -f "$MQTT_PUBLISH_PY" ]]; then
+    echo "$(date -Iseconds) ERROR: mqtt_publish.py not found at ${MQTT_PUBLISH_PY}." >&2
+    exit 1
+fi
 
 timestamp="$(date -Iseconds)"
 
 ### ---- Run the speed test -------------------------------------------------
 
-raw_json="$(speedtest-cli --json 2>/tmp/speedtest-daily-error.log)"
+raw_json="$("$VENV_SPEEDTEST" --json 2>/tmp/speedtest-daily-error.log)"
 exit_code=$?
 
 if [[ $exit_code -ne 0 || -z "$raw_json" ]]; then
@@ -77,25 +100,29 @@ fi
 
 # --- Extraction (speedtest-cli --json format) ---
 # speedtest-cli reports download/upload in bits per second.
-download_bps="$(jq -r '.download' <<<"$raw_json")"
-upload_bps="$(jq -r '.upload' <<<"$raw_json")"
-ping_ms="$(jq -r '.ping' <<<"$raw_json")"
-server_name="$(jq -r '.server.name // "unknown"' <<<"$raw_json")"
-server_sponsor="$(jq -r '.server.sponsor // "unknown"' <<<"$raw_json")"
+# Parsed with the venv's python (json module) so we don't add a jq dependency.
+read -r download_bps upload_bps ping_ms server_name server_sponsor <<<"$("$VENV_PYTHON" - "$raw_json" <<'PYEOF'
+import json, sys
+data = json.loads(sys.argv[1])
+server = data.get("server", {})
+print(
+    data.get("download", 0),
+    data.get("upload", 0),
+    data.get("ping", 0),
+    (server.get("name") or "unknown").replace(" ", "_"),
+    (server.get("sponsor") or "unknown").replace(" ", "_"),
+)
+PYEOF
+)"
 
 # Convert to Mbps (rounded to 1 decimal place).
 download_mbps="$(awk -v b="$download_bps" 'BEGIN { printf "%.1f", b / 1000000 }')"
 upload_mbps="$(awk -v b="$upload_bps" 'BEGIN { printf "%.1f", b / 1000000 }')"
 ping_ms_rounded="$(awk -v p="$ping_ms" 'BEGIN { printf "%.1f", p }')"
+server_name="${server_name//_/ }"
+server_sponsor="${server_sponsor//_/ }"
 
-result_payload=$(jq -n \
-    --arg ts "$timestamp" \
-    --arg dl "$download_mbps" \
-    --arg ul "$upload_mbps" \
-    --arg ping "$ping_ms_rounded" \
-    --arg server "$server_name" \
-    --arg sponsor "$server_sponsor" \
-    '{timestamp:$ts, download_mbps:($dl|tonumber), upload_mbps:($ul|tonumber), ping_ms:($ping|tonumber), server:$server, sponsor:$sponsor}')
+result_payload="{\"timestamp\":\"${timestamp}\",\"download_mbps\":${download_mbps},\"upload_mbps\":${upload_mbps},\"ping_ms\":${ping_ms_rounded},\"server\":\"${server_name}\",\"sponsor\":\"${server_sponsor}\"}"
 
 log "Speedtest result: download=${download_mbps}Mbps upload=${upload_mbps}Mbps ping=${ping_ms_rounded}ms server=\"${server_sponsor} (${server_name})\""
 
@@ -122,13 +149,7 @@ if (( ${#anomalies[@]} > 0 )); then
     joined_reasons="$(IFS='; '; echo "${anomalies[*]}")"
     log "ANOMALY detected: ${joined_reasons}"
 
-    anomaly_payload=$(jq -n \
-        --arg ts "$timestamp" \
-        --arg reasons "$joined_reasons" \
-        --arg dl "$download_mbps" \
-        --arg ul "$upload_mbps" \
-        --arg ping "$ping_ms_rounded" \
-        '{type:"speedtest_anomaly", reasons:$reasons, download_mbps:($dl|tonumber), upload_mbps:($ul|tonumber), ping_ms:($ping|tonumber), timestamp:$ts}')
+    anomaly_payload="{\"type\":\"speedtest_anomaly\",\"reasons\":\"${joined_reasons}\",\"download_mbps\":${download_mbps},\"upload_mbps\":${upload_mbps},\"ping_ms\":${ping_ms_rounded},\"timestamp\":\"${timestamp}\"}"
 
     mqtt_publish "$MQTT_TOPIC_ANOMALY" "$anomaly_payload"
 else
