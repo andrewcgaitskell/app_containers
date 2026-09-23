@@ -15,8 +15,32 @@ RUN apt-get update && apt-get install -y \
     docker.io \
     python3 \
     python3-pip \
-    && pip install --no-cache-dir --break-system-packages "speedtest-cli>=2.1.3" \
+    python3-venv \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+set -euo pipefail
+ 
+VENV_DIR="${VENV_DIR:-/opt/net-monitor/venv}"
+ 
+echo "Creating virtual environment at ${VENV_DIR} ..."
+sudo mkdir -p "$(dirname "$VENV_DIR")"
+sudo chown "$(id -u):$(id -g)" "$(dirname "$VENV_DIR")"
+ 
+python3 -m venv "$VENV_DIR"
+ 
+echo "Installing packages into the venv ..."
+"$VENV_DIR/bin/pip" install --upgrade pip
+"$VENV_DIR/bin/pip" install speedtest-cli paho-mqtt
+ 
+echo
+echo "Done. Venv created at: ${VENV_DIR}"
+echo "speedtest-cli path:    ${VENV_DIR}/bin/speedtest-cli"
+echo "python path:            ${VENV_DIR}/bin/python3"
+echo
+echo "If you used a custom VENV_DIR, make sure net-speedtest-daily.sh"
+echo "and mqtt_publish.py point at the same path."
+
 
 # Scripts
 COPY ha-health-monitor.sh /scripts/ha-health-monitor.sh
