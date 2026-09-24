@@ -23,12 +23,12 @@ services:
 
   esphome:
     container_name: esphome
-    image: ghcr.io/esphome/esphome
-    devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0
+    image: ghcr.io/esphome/esphome:2026.9.0
+    command: dashboard --address 127.0.0.1 /config
     volumes:
       - /opt/data/esphome/config:/config
       - /etc/localtime:/etc/localtime:ro
+      - /dev:/dev
     restart: always
     privileged: true
     network_mode: host
