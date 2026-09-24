@@ -136,6 +136,7 @@ services:
     network_mode: host
     volumes:
       - /opt/data/blockly:/usr/share/nginx/html
+      - /opt/data/blockly/programs:/data/programs
 
   jupyter:
     build:
