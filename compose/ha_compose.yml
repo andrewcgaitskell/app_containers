@@ -142,14 +142,12 @@ services:
     build:
       context: ../jupyter
       dockerfile: Dockerfile
-    # ensure an arm64 image is used/pulled/built on arm64 hosts
-    platform: linux/arm64
-    user: "root"
     network_mode: host
     volumes:
-      # host /opt/data -> container workdir (keeps workdir away from home dirs)
-      - /opt/data:/opt/data
+      - /opt/data/jupyter:/opt/data
     working_dir: /opt/data
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
     restart: unless-stopped
 
   cloudbeaver:
