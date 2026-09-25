@@ -77,7 +77,7 @@ services:
     volumes:
       - /opt/data/otbr/data:/data
     environment:
-      OT_RCP_DEVICE: "spinel+hdlc+uart:///dev/ttyUSB1?uart-baudrate=1000000"
+      OT_RCP_DEVICE: "spinel+hdlc+uart:///dev/ttyUSB1?uart-baudrate=460800"
       OT_INFRA_IF: "wlan0"      # set to eth0 if that's your infra interface
       OT_THREAD_IF: "wpan0"
       OT_LOG_LEVEL: "7"
