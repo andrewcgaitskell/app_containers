@@ -65,6 +65,25 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  otbr:
+    container_name: otbr
+    image: openthread/border-router:latest
+    network_mode: host        # OTBR needs the host's network stack directly
+    cap_add:
+      - NET_ADMIN              # required for interface/routing configuration
+    devices:
+      - /dev/ttyUSB1:/dev/ttyUSB1   # RCP serial device — adjust if yours differs
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /opt/data/otbr/data:/data
+    environment:
+      OT_RCP_DEVICE: "spinel+hdlc+uart:///dev/ttyACM0?uart-baudrate=1000000"
+      OT_INFRA_IF: "wlan0"      # set to eth0 if that's your infra interface
+      OT_THREAD_IF: "wpan0"
+      OT_LOG_LEVEL: "7"
+    restart: always
+
+
   matter-server:
     image: ghcr.io/home-assistant-libs/python-matter-server:stable
     container_name: matter-server
