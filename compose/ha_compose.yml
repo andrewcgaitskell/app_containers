@@ -85,15 +85,18 @@ services:
 
 
   matter-server:
-    image: ghcr.io/home-assistant-libs/python-matter-server:stable
+    image: ghcr.io/matter-js/matterjs-server:stable
     container_name: matter-server
     depends_on:
       otbr:
         condition: service_started
     restart: unless-stopped
     network_mode: host
-    security_opt:
-      - apparmor:unconfined
+    environment:
+      - TZ=Europe/London
+      - NOBLE_BINDINGS=dbus
+      - BLUETOOTH_ADAPTER=0
+      - LISTEN_ADDRESS=127.0.0.1
     volumes:
       - /opt/data/matter/data:/data/
       - /run/dbus:/run/dbus:ro
