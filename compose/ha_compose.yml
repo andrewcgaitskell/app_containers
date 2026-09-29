@@ -97,6 +97,7 @@ services:
       - NOBLE_BINDINGS=dbus
       - BLUETOOTH_ADAPTER=0
       - LISTEN_ADDRESS=127.0.0.1
+      - ENABLE_TEST_NET_DCL=true # allow test devices and custom esp32c6 devices
     volumes:
       - /opt/data/matter/data:/data/
       - /run/dbus:/run/dbus:ro
