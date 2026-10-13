@@ -61,7 +61,7 @@ services:
     environment:
       - TZ=Europe/London
     devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0
+      - ${ZIGBEE_STICK_PATH}:/dev/ttyUSB-zigbee
     security_opt:
       - no-new-privileges:true
 
