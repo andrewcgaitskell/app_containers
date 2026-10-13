@@ -72,7 +72,7 @@ services:
     cap_add:
       - NET_ADMIN              # required for interface/routing configuration
     devices:
-      - /dev/ttyUSB1:/dev/ttyUSB1   # RCP serial device — adjust if yours differs
+      - ${OTBR_STICK_PATH}:/dev/ttyUSB-otbr
       - /dev/net/tun:/dev/net/tun
     volumes:
       - /opt/data/otbr/data:/data
