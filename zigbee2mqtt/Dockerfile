@@ -1,7 +1,7 @@
 # Pin to a specific, known-good Zigbee2MQTT release rather than "latest",
 # so updates are deliberate (check current tags at
 # https://hub.docker.com/r/koenkk/zigbee2mqtt/tags before bumping this).
-FROM koenkk/zigbee2mqtt:1.42.0
+FROM koenkk/zigbee2mqtt:2.14.1
 
 # Basic container-level hardening
 ENV NODE_ENV=production
