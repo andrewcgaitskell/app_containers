@@ -172,6 +172,7 @@ services:
     network_mode: host
     volumes:
       - /opt/data/jupyter:/opt/data
+      - /opt/data/freshrss/data:/opt/freshrss:ro
     working_dir: /opt/data
     environment:
       JUPYTER_TOKEN: ${JUPYTER_TOKEN}
