@@ -193,3 +193,16 @@ services:
   
     volumes:
       - /opt/data/cloudbeaver_workspace:/opt/cloudbeaver/workspace
+
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      TZ: Europe/London
+      CRON_MIN: "3,33"
+    volumes:
+      - /opt/data/freshrss/data:/var/www/FreshRSS/data
+      - /opt/data/freshrss/extensions:/var/www/FreshRSS/extensions
