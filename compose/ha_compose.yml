@@ -199,7 +199,7 @@ services:
     container_name: freshrss
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "8090:80"
     environment:
       TZ: Europe/London
       CRON_MIN: "3,33"
