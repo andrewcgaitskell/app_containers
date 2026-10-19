@@ -6,15 +6,27 @@ from quart import Blueprint, current_app, render_template, request
 
 bp = Blueprint("temperature", __name__)
 
-# Adapt to your setup (or reuse the pool your app already has)
-DSN = "postgresql://USER:PASSWORD@localhost:5432/DBNAME"
+# DB Connection
+DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
+DB_USER = os.environ.get("POSTGRES_USER", "mqttuser")
+DB_PASS = os.environ.get("POSTGRES_PASSWORD", "mqttpassword")
+DB_NAME = os.environ.get("POSTGRES_DB", "data")
+
 MAX_POINTS = 500
 
 
 async def get_pool():
     pool = current_app.config.get("PG_POOL")
     if pool is None:
-        pool = await asyncpg.create_pool(DSN, min_size=1, max_size=3)
+        pool = await asyncpg.create_pool(
+            host=DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DB_NAME,
+            min_size=1,
+            max_size=3,
+        )
         current_app.config["PG_POOL"] = pool
     return pool
 
