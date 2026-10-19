@@ -9,16 +9,19 @@ from aiomqtt import Client
 # Register blueprint import (must be after other imports)
 from blueprints.hass import hass_bp
 
+from blueprints.temperature_plot import bp as temperature_bp
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,  # Or DEBUG for more verbosity
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-app = Quart(__name__)
+app = Quart(__name__,template_folder="templates")
 
 # Register the Home Assistant blueprint
 app.register_blueprint(hass_bp)
+app.register_blueprint(temperature_bp)
 
 # DB Connection
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
