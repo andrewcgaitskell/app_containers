@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ device }} temperature</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --fg: #1d2421;
+    --muted: #66706b;
+    --line: #c9422d;
+    --grid: #dfe3e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161a18;
+      --fg: #e8ece9;
+      --muted: #98a39d;
+      --line: #ff7a5c;
+      --grid: #2a312d;
+    }
+  }
+  body {
+    margin: 0;
+    padding: 1.5rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 56rem; margin: 0 auto; }
+  h1 { font-size: 1.1rem; font-weight: 600; margin: 0 0 .25rem; }
+  .latest { font-size: 2.5rem; font-weight: 600; margin: 0; }
+  .when { color: var(--muted); margin: 0 0 1.25rem; font-size: .9rem; }
+  nav { display: flex; gap: 1rem; margin-bottom: 1rem; }
+  nav a { color: var(--muted); text-decoration: none; padding-bottom: 2px; }
+  nav a[aria-current="true"] { color: var(--fg); border-bottom: 2px solid var(--line); }
+  nav a:focus-visible { outline: 2px solid var(--line); outline-offset: 3px; }
+  .chart { position: relative; height: 55vh; min-height: 280px; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>{{ device }}</h1>
+
+  {% if latest %}
+    <p class="latest">{{ "%.1f"|format(latest.y) }} °C</p>
+    <p class="when" id="when" data-ts="{{ latest.x }}"></p>
+  {% endif %}
+
+  <nav aria-label="Time range">
+    {% for h, label in [(6, "6 hours"), (24, "24 hours"), (168, "7 days"), (720, "30 days")] %}
+      <a href="{{ url_for('temperature.temperature', device=device, hours=h) }}"
+         {% if h == hours %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if points %}
+    <div class="chart"><canvas id="chart" aria-label="Temperature over time" role="img"></canvas></div>
+  {% else %}
+    <p class="empty">No temperature readings for this device in the last {{ hours }} hours.</p>
+  {% endif %}
+</main>
+
+{% if points %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+  const points = {{ points | tojson }};
+  const css = getComputedStyle(document.documentElement);
+  const line = css.getPropertyValue("--line").trim();
+  const grid = css.getPropertyValue("--grid").trim();
+  const muted = css.getPropertyValue("--muted").trim();
+
+  new Chart(document.getElementById("chart"), {
+    type: "line",
+    data: {
+      datasets: [{
+        data: points,
+        borderColor: line,
+        backgroundColor: line,
+        borderWidth: 2,
+        tension: 0.2,
+        pointRadius: points.length > 60 ? 0 : 3,
+      }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { type: "time", grid: { color: grid }, ticks: { color: muted } },
+        y: {
+          grid: { color: grid },
+          ticks: { color: muted, callback: v => v + " °C" },
+        },
+      },
+    },
+  });
+
+  const when = document.getElementById("when");
+  if (when) {
+    when.textContent = "Last reading " + new Date(when.dataset.ts).toLocaleString();
+  }
+</script>
+{% endif %}
+</body>
+</html>
