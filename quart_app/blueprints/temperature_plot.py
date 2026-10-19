@@ -1,5 +1,6 @@
 import json
 import math
+import os
 
 import asyncpg
 from quart import Blueprint, current_app, render_template, request
@@ -8,6 +9,7 @@ bp = Blueprint("temperature", __name__)
 
 # DB Connection
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
+DB_PORT = int(os.environ.get("POSTGRES_PORT", "5432"))
 DB_USER = os.environ.get("POSTGRES_USER", "mqttuser")
 DB_PASS = os.environ.get("POSTGRES_PASSWORD", "mqttpassword")
 DB_NAME = os.environ.get("POSTGRES_DB", "data")
