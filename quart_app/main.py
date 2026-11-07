@@ -11,6 +11,8 @@ from blueprints.hass import hass_bp
 
 from blueprints.temperature_plot import bp as temperature_bp
 
+from blueprints.presence_plot import bp as presence_bp
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,  # Or DEBUG for more verbosity
@@ -22,6 +24,7 @@ app = Quart(__name__,template_folder="templates")
 # Register the Home Assistant blueprint
 app.register_blueprint(hass_bp)
 app.register_blueprint(temperature_bp)
+app.register_blueprint(presence_bp)
 
 # DB Connection
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
