@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presence events</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --fg: #1d2421;
+    --muted: #66706b;
+    --line: #c9422d;
+    --grid: #dfe3e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161a18;
+      --fg: #e8ece9;
+      --muted: #98a39d;
+      --line: #ff7a5c;
+      --grid: #2a312d;
+    }
+  }
+  body {
+    margin: 0;
+    padding: 1.5rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 70rem; margin: 0 auto; }
+  h1 { font-size: 1.2rem; font-weight: 600; margin: 0 0 .75rem; }
+  p, nav { color: var(--muted); }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+  nav a { color: var(--muted); text-decoration: none; padding-bottom: 2px; }
+  nav a[aria-current="true"] { color: var(--fg); border-bottom: 2px solid var(--line); }
+  nav a:focus-visible { outline: 2px solid var(--line); outline-offset: 3px; }
+  .chart { position: relative; height: 65vh; min-height: 320px; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Presence events</h1>
+  <nav aria-label="Time range">
+    {% for h, label in [(6, "6 hours"), (24, "24 hours"), (168, "7 days"), (720, "30 days")] %}
+      <a href="{{ url_for('presence.presence_events', hours=h) }}"
+         {% if h == hours %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if event_count %}
+    <p>{{ event_count }} occupancy=true messages{% if event_count == 5000 %} (showing the latest 5,000){% endif %}</p>
+    <div class="chart">
+      <canvas id="chart" aria-label="Occupancy events by device over time" role="img"></canvas>
+    </div>
+  {% else %}
+    <p class="empty">No occupancy events in the last {{ hours }} hours.</p>
+  {% endif %}
+</main>
+
+{% if event_count %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+  const devices = {{ devices | tojson }};
+  const datasets = {{ datasets | tojson }};
+  const css = getComputedStyle(document.documentElement);
+  const line = css.getPropertyValue("--line").trim();
+  const grid = css.getPropertyValue("--grid").trim();
+  const muted = css.getPropertyValue("--muted").trim();
+  const colors = [line, "#3478c8", "#39845a", "#9b59b6", "#d28b19", "#168a8a"];
+
+  new Chart(document.getElementById("chart"), {
+    type: "scatter",
+    data: {
+      datasets: datasets.map((dataset, index) => ({
+        ...dataset,
+        showLine: false,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        backgroundColor: colors[index % colors.length],
+      })),
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: context =>
+              `${devices[context.parsed.y]} — ${new Date(context.parsed.x).toLocaleString()}`,
+          },
+        },
+      },
+      scales: {
+        x: { type: "time", grid: { color: grid }, ticks: { color: muted } },
+        y: {
+          type: "linear",
+          min: -0.5,
+          max: devices.length - 0.5,
+          grid: { color: grid },
+          ticks: {
+            stepSize: 1,
+            color: muted,
+            callback: value => devices[Math.round(value)] ?? "",
+          },
+        },
+      },
+    },
+  });
+</script>
+{% endif %}
+</body>
+</html>
