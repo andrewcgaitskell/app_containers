@@ -10,6 +10,9 @@ throwaway Docker container to run, so nothing needs installing on the host.
   `mqtt-publish.py`. Scripts run in a temp directory with `curl`, `docker`,
   `ping`, `speedtest-cli` and the MQTT publisher replaced by recording stubs,
   so nothing is contacted, restarted or published.
+- `postgres/` – tests for the backup app in `postgres/quart/`. `pg_dump`
+  and `zip` are never run (subprocess is faked) and the DB pool is faked;
+  only `postgres/quart/` is mounted, not `init.sql` or `pg_hba.conf`.
 - `Dockerfile` – test image (Python 3.11 + `quart_app/requirements-dev.txt`).
 - `run-tests-docker.sh` – builds the image, runs the tests, writes results.
 

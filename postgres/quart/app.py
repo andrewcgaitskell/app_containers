@@ -13,9 +13,12 @@ from db import init_db_pool, db_pool
 # Create a blueprint
 backup_blueprint = Blueprint('backup', __name__)
 
+# Where dumps and the last-backup timestamp are written (mounted volume).
+BACKUP_DIR = os.environ.get("BACKUP_DIR", "/backups")
+
 # Function to get or update the last backup timestamp
 def get_last_backup_timestamp():
-    timestamp_file = "/backups/last_backup_timestamp.txt"
+    timestamp_file = os.path.join(BACKUP_DIR, "last_backup_timestamp.txt")
     if os.path.exists(timestamp_file):
         with open(timestamp_file, 'r') as f:
             last_backup_str = f.read().strip()
@@ -28,7 +31,7 @@ def get_last_backup_timestamp():
     return datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 def update_last_backup_timestamp(timestamp):
-    timestamp_file = "/backups/last_backup_timestamp.txt"
+    timestamp_file = os.path.join(BACKUP_DIR, "last_backup_timestamp.txt")
     with open(timestamp_file, 'w') as f:
         f.write(timestamp)
 
@@ -36,7 +39,7 @@ def update_last_backup_timestamp(timestamp):
 async def trigger_data_dump():
     try:
         # Backup directory
-        backup_dir = "/backups"
+        backup_dir = BACKUP_DIR
         os.makedirs(backup_dir, exist_ok=True)
 
         # Define US timezone using zoneinfo
@@ -76,7 +79,7 @@ async def trigger_data_dump():
 async def trigger_data_data_only():
     try:
         # Backup directory
-        backup_dir = "/backups"
+        backup_dir = BACKUP_DIR
         os.makedirs(backup_dir, exist_ok=True)
 
         # Define US timezone using zoneinfo

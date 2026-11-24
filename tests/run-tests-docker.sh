@@ -21,7 +21,7 @@ fi
 mkdir -p "$RESULTS"
 
 COMMIT=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)
-if [ -n "$(git -C "$REPO" status --porcelain -- quart_app health tests pytest.ini 2>/dev/null)" ]; then
+if [ -n "$(git -C "$REPO" status --porcelain -- quart_app health postgres/quart tests pytest.ini 2>/dev/null)" ]; then
     COMMIT="$COMMIT (+uncommitted changes)"
 fi
 
@@ -59,6 +59,7 @@ docker run --rm \
     -v "$REPO/quart_app:/work/quart_app:ro" \
     -v "$REPO/tests:/work/tests:ro" \
     -v "$REPO/health:/work/health:ro" \
+    -v "$REPO/postgres/quart:/work/postgres/quart:ro" \
     -v "$REPO/pytest.ini:/work/pytest.ini:ro" \
     -v "$RESULTS:/results" \
     "$IMAGE" --junitxml="/results/$STAMP.xml" 2>&1 | tee -a "$REPORT"

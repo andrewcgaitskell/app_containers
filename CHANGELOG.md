@@ -18,12 +18,20 @@ History before November 2026 is in `git log`.
   `ha-health-monitor.sh`, `pg-dump-trigger.sh`, `net-connectivity-check.sh`,
   `net-speedtest-daily.sh` and `mqtt-publish.py` with all external commands
   stubbed, plus checks that the Dockerfile, crontab and scripts fit together.
+- Tests for the Postgres backup app (`postgres/quart/`) under
+  `tests/postgres/`: both dump endpoints, failure handling, the
+  last-backup timestamp helpers, and DB pool setup. `pg_dump`, `zip` and
+  the pool are faked.
 
 ### Changed
 - Health scripts: log, state and venv paths can be overridden by
   environment variables (`LOGFILE`, `STATE_DIR`, `MAX_LOG_SIZE`, `VENV_DIR`,
   `STATE_FILE`) for testing. Defaults are unchanged.
 - Test runner mounts `health/` and allows executables in its `/tmp`.
+- `postgres/quart/app.py`: backup directory can be overridden with
+  `BACKUP_DIR` for testing; default is still `/backups`.
+- Test runner also mounts `postgres/quart/` (read-only). Reinstall
+  `/usr/local/bin/run-app-tests` to pick this up.
 
 ### Fixed
 - `POST /api/light/<entity>/set` returned an unhandled 500 when `state` was
