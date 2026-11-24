@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/workspace/app_containers/**)",
+      "Write(/workspace/app_containers/**)",
+      "Edit(/workspace/app_containers/**)",
+      "Bash(git diff *)",
+      "Bash(git status *)",
+      "Bash(python3 -m pytest *)"
+    ],
+    "deny": [
+      "Read(/opt/**)",
+      "Read(/run/**)",
+      "Read(/var/run/**)",
+      "Read(/workspace/app_containers/**/.env*)",
+      "Read(/workspace/app_containers/**/secrets.yaml)",
+      "Read(/workspace/app_containers/**/secrets.yml)",
+      "Read(/workspace/app_containers/**/.storage/**)",
+      "Write(/opt/**)",
+      "Write(/run/**)",
+      "Write(/var/run/**)",
+      "Bash(docker *)",
+      "Bash(sudo *)",
+      "Bash(curl *)",
+      "Bash(wget *)"
+    ]
+  }
+}
