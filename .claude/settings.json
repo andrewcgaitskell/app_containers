@@ -9,7 +9,6 @@
       "Bash(python3 -m pytest *)"
     ],
     "deny": [
-      "Read(/opt/**)",
       "Read(/run/**)",
       "Read(/var/run/**)",
       "Read(/opt/data/app_containers/**/.env*)",
