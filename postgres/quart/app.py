@@ -33,6 +33,14 @@ BACKUP_KEEP_DAYS = _keep_days()
 BACKUP_FILE_RE = re.compile(r"^(data_dump|data_data_only)_(\d{8}_\d{4})\.(sql|zip)$")
 
 
+def pg_dump_user():
+    """Database user for pg_dump: POSTGRES_USER, injected by compose from compose/.env."""
+    user = os.environ.get("POSTGRES_USER")
+    if not user:
+        raise RuntimeError("POSTGRES_USER environment variable is not set")
+    return user
+
+
 def cleanup_old_backups(now=None):
     """Delete dump files older than BACKUP_KEEP_DAYS.
 
@@ -115,11 +123,11 @@ async def trigger_data_dump():
         zip_file = f"{backup_dir}/data_dump_{timestamp}.zip"
 
         env = os.environ.copy()
-        env['PGUSER'] = "pythonuser"
+        user = pg_dump_user()
 
         subprocess.run([
             "pg_dump",
-            "-U", "pi5ha",
+            "-U", user,
             "-d", "data",
             "-f", backup_file
         ], check=True, env=env)
@@ -158,12 +166,12 @@ async def trigger_data_data_only():
         zip_file = f"{backup_dir}/data_data_only_{timestamp}.zip"
 
         env = os.environ.copy()
-        env['PGUSER'] = "pythonuser"
+        user = pg_dump_user()
 
         subprocess.run([
             "pg_dump",
             "--data-only",  # Include data inserts only
-            "-U", "pi5ha",
+            "-U", user,
             "-d", "data",
             "-f", backup_file
         ], check=True, env=env)

@@ -41,6 +41,11 @@ History before November 2026 is in `git log`.
   `/usr/local/bin/run-app-tests` to pick this up.
 
 ### Fixed
+- `postgres/quart/app.py` ran `pg_dump -U pi5ha` with a hard-coded user
+  (and a `PGUSER=pythonuser` that `-U` overrode). It now uses
+  `POSTGRES_USER`, which compose passes in from `compose/.env`; if it is
+  missing, the endpoint returns 500 without running `pg_dump`. Takes
+  effect when the Postgres container restarts.
 - `postgres/quart/app.py` never closed the DB pool on shutdown: it imported
   `db_pool` by value (always `None`). It now reads `db.db_pool`, closes it,
   and clears it. Takes effect when the Postgres container restarts.

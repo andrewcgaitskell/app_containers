@@ -24,6 +24,7 @@ def load(name, filename):
 
 @pytest.fixture
 def pg(monkeypatch, tmp_path):
+    monkeypatch.setenv("POSTGRES_USER", "placeholder_user")
     module = load("pg_backup_app", "app.py")
     module.BACKUP_DIR = str(tmp_path / "backups")
 
@@ -75,11 +76,27 @@ async def test_dump_runs_pg_dump_then_zip(pg, client, route, prefix, extra_args)
     assert backups.is_dir()
 
     (dump_cmd, dump_kwargs), (zip_cmd, zip_kwargs) = pg.commands
-    assert dump_cmd == ["pg_dump", *extra_args, "-U", "pi5ha", "-d", "data", "-f", sql]
+    assert dump_cmd == ["pg_dump", *extra_args, "-U", "placeholder_user", "-d", "data", "-f", sql]
     assert dump_kwargs["check"] is True
-    assert dump_kwargs["env"]["PGUSER"] == "pythonuser"
     assert zip_cmd == ["zip", "-j", zipped, sql]
     assert zip_kwargs["check"] is True
+
+
+@pytest.mark.parametrize("route", ["/trigger_data_dump", "/trigger_data_data_only"])
+async def test_missing_postgres_user_returns_500_without_running_pg_dump(pg, client, monkeypatch, route):
+    monkeypatch.delenv("POSTGRES_USER")
+
+    resp = await client.post(route)
+
+    assert resp.status_code == 500
+    assert (await resp.get_json())["error"] == "POSTGRES_USER environment variable is not set"
+    assert pg.commands == []
+
+
+def test_no_hard_coded_database_users():
+    source = (PG_QUART / "app.py").read_text()
+    assert "pi5ha" not in source
+    assert "pythonuser" not in source
 
 
 @pytest.mark.parametrize("route", ["/trigger_data_dump", "/trigger_data_data_only"])
