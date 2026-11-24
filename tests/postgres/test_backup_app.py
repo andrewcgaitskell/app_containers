@@ -89,7 +89,7 @@ async def test_dump_runs_pg_dump_then_zip(pg, client, route, prefix, extra_args)
     resp = await client.post(route)
 
     assert resp.status_code == 200
-    assert await resp.get_json() == {"message": f"Data backup successful: {sql}"}
+    assert await resp.get_json() == {"message": f"Data backup successful: {sql}", "deleted": []}
     assert backups.is_dir()
 
     (dump_cmd, dump_kwargs), (zip_cmd, zip_kwargs) = pg.commands
@@ -132,6 +132,133 @@ def test_backup_dir_defaults_to_backups(db, monkeypatch):
     monkeypatch.delenv("BACKUP_DIR", raising=False)
 
     assert load("pg_backup_app_defaults", "app.py").BACKUP_DIR == "/backups"
+
+
+# ------------------------------------------------------------------ cleanup
+
+def make_files(directory, *names):
+    directory.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        (directory / name).write_text("x")
+
+
+def remaining(directory):
+    return sorted(p.name for p in directory.iterdir())
+
+
+def test_cleanup_deletes_only_old_dump_files(pg):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(
+        backups,
+        # older than 30 days -> deleted (both types, both extensions)
+        "data_dump_20261001_0601.sql", "data_dump_20261001_0601.zip",
+        "data_data_only_20261001_0601.sql", "data_data_only_20261001_0601.zip",
+        # within 30 days -> kept
+        "data_dump_20261030_0601.sql", "data_dump_20261030_0601.zip",
+        "data_data_only_20261124_0601.zip",
+        # not files this app creates -> never touched, however old they look
+        "last_backup_timestamp.txt", "data_dump_20200101_0000.sql.bak",
+        "manual_20200101_0000.sql", "data_dump_old.zip", "notes.txt",
+    )
+
+    deleted = pg.cleanup_old_backups()
+
+    assert deleted == [
+        "data_data_only_20261001_0601.sql", "data_data_only_20261001_0601.zip",
+        "data_dump_20261001_0601.sql", "data_dump_20261001_0601.zip",
+    ]
+    assert remaining(backups) == sorted([
+        "data_dump_20261030_0601.sql", "data_dump_20261030_0601.zip",
+        "data_data_only_20261124_0601.zip",
+        "last_backup_timestamp.txt", "data_dump_20200101_0000.sql.bak",
+        "manual_20200101_0000.sql", "data_dump_old.zip", "notes.txt",
+    ])
+
+
+def test_cleanup_boundary_is_exactly_keep_days(pg):
+    backups = Path(pg.BACKUP_DIR)
+    # FIXED_NOW is 2026-11-24 06:01:30, so the cutoff is 2026-10-25 06:01:30.
+    make_files(backups, "data_dump_20261025_0601.zip", "data_dump_20261025_0602.zip",
+               "data_dump_20261124_0601.zip")
+
+    assert pg.cleanup_old_backups() == ["data_dump_20261025_0601.zip"]
+
+
+def test_cleanup_always_keeps_newest_of_each_type(pg):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(
+        backups,
+        "data_dump_20250101_0601.sql", "data_dump_20250101_0601.zip",
+        "data_dump_20250102_0601.sql", "data_dump_20250102_0601.zip",
+        "data_data_only_20250101_0601.zip",
+    )
+
+    pg.cleanup_old_backups()
+
+    assert remaining(backups) == [
+        "data_data_only_20250101_0601.zip",
+        "data_dump_20250102_0601.sql", "data_dump_20250102_0601.zip",
+    ]
+
+
+def test_cleanup_uses_keep_days_setting(pg):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(backups, "data_dump_20261115_0601.zip", "data_dump_20261124_0601.zip")
+    pg.BACKUP_KEEP_DAYS = 7
+
+    assert pg.cleanup_old_backups() == ["data_dump_20261115_0601.zip"]
+
+
+def test_cleanup_missing_dir_returns_empty(pg):
+    assert pg.cleanup_old_backups() == []
+
+
+def test_cleanup_delete_error_is_logged_not_raised(pg, monkeypatch, caplog):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(backups, "data_dump_20261001_0601.zip", "data_dump_20261124_0601.zip")
+
+    def refuse(path):
+        raise PermissionError("read-only")
+
+    monkeypatch.setattr(pg.os, "remove", refuse)
+
+    assert pg.cleanup_old_backups() == []
+    assert "could not delete data_dump_20261001_0601.zip" in caplog.text
+
+
+@pytest.mark.parametrize("route", ["/trigger_data_dump", "/trigger_data_data_only"])
+async def test_backup_route_runs_cleanup(pg, client, route):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(backups, "data_dump_20261001_0601.zip", "data_data_only_20261001_0601.zip",
+               "data_dump_20261120_0601.zip", "data_data_only_20261120_0601.zip")
+
+    resp = await client.post(route)
+
+    assert resp.status_code == 200
+    assert (await resp.get_json())["deleted"] == [
+        "data_data_only_20261001_0601.zip", "data_dump_20261001_0601.zip",
+    ]
+
+
+async def test_backup_not_cleaned_up_when_dump_fails(pg, client):
+    backups = Path(pg.BACKUP_DIR)
+    make_files(backups, "data_dump_20261001_0601.zip", "data_dump_20261120_0601.zip")
+    pg.fail_on["pg_dump"] = subprocess.CalledProcessError(1, "pg_dump")
+
+    resp = await client.post("/trigger_data_dump")
+
+    assert resp.status_code == 500
+    assert "data_dump_20261001_0601.zip" in remaining(backups)
+
+
+@pytest.mark.parametrize("value, expected", [(None, 30), ("7", 7), ("abc", 30), ("0", 30), ("-5", 30)])
+def test_keep_days_setting(db, monkeypatch, value, expected):
+    if value is None:
+        monkeypatch.delenv("BACKUP_KEEP_DAYS", raising=False)
+    else:
+        monkeypatch.setenv("BACKUP_KEEP_DAYS", value)
+
+    assert load("pg_backup_app_keep_days", "app.py").BACKUP_KEEP_DAYS == expected
 
 
 # --------------------------------------------------------- timestamp helpers

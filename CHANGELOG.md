@@ -6,6 +6,13 @@ History before November 2026 is in `git log`.
 
 ## [Unreleased]
 ### Added
+- Backup cleanup in `postgres/quart/app.py`: after each successful dump,
+  `data_dump_*` / `data_data_only_*` `.sql` and `.zip` files older than
+  `BACKUP_KEEP_DAYS` (default 30) are deleted from `/backups`, based on the
+  timestamp in the filename. The newest backup of each type is always kept
+  and no other files are touched. Deleted names are returned in the
+  response's `deleted` field (and so logged by `pg-dump-trigger.sh`).
+  Takes effect when the Postgres container restarts.
 - Test suite for `quart_app` under `tests/quart_app/` (routes, MQTT
   listener, DB writes, Home Assistant calls, temperature and presence
   plots). All external services are faked. Run with `python3 -m pytest`
