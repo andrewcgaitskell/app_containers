@@ -23,7 +23,6 @@ def _hass_headers() -> dict:
 async def call_hass_service(domain: str, service: str, service_data: dict) -> Tuple[int, Any]:
     """Call Home Assistant service (async) using the application's shared aiohttp session."""
     url = f"{HASS_URL.rstrip('/')}/api/services/{domain}/{service}"
-    print("Full Hass URL:>>>", url)
     headers = _hass_headers()
     logging.info("Calling HA service %s.%s with data %s", domain, service, service_data)
     session: aiohttp.ClientSession = current_app.http_session
@@ -38,7 +37,6 @@ async def call_hass_service(domain: str, service: str, service_data: dict) -> Tu
 async def get_entity_state(entity_id: str) -> Tuple[int, Any]:
     """Get entity state from Home Assistant."""
     url = f"{HASS_URL.rstrip('/')}/api/states/{entity_id}"
-    print("Full Entity URL:>>>", url)
     headers = _hass_headers()
     session: aiohttp.ClientSession = current_app.http_session
     async with session.get(url, headers=headers) as resp:
@@ -64,10 +62,13 @@ async def set_light(entity_id):
     except Exception:
         return jsonify({"error": "invalid json"}), 400
 
-    if not data or "state" not in data:
+    if not isinstance(data, dict) or "state" not in data:
         return jsonify({"error": "missing 'state' in payload"}), 400
 
-    state = data.get("state").lower()
+    if not isinstance(data["state"], str):
+        return jsonify({"error": "state must be 'on' or 'off'"}), 400
+
+    state = data["state"].lower()
     service_data = {"entity_id": entity_id}
 
     # Include optional service data (brightness, rgb_color, etc.)

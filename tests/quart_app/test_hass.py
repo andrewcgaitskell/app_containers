@@ -41,7 +41,10 @@ async def test_set_light_off_calls_turn_off(client, ha):
     "kwargs, error",
     [
         ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+        ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+        ({"json": {"state": None}}, "state must be 'on' or 'off'"),
         ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+        ({"json": ["state"]}, "missing 'state' in payload"),
         ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
     ],
 )
@@ -51,12 +54,6 @@ async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
     assert resp.status_code == 400
     assert (await resp.get_json())["error"] == error
     assert ha.requests == []
-
-
-@pytest.mark.xfail(strict=True, reason="non-string 'state' raises AttributeError -> unhandled 500")
-async def test_set_light_rejects_non_string_state(client, ha):
-    resp = await client.post("/api/light/light.kitchen/set", json={"state": 1})
-    assert resp.status_code == 400
 
 
 async def test_missing_token_returns_500_without_calling_ha(client, ha, monkeypatch):

@@ -15,6 +15,14 @@ History before November 2026 is in `git log`.
   run the tests in an isolated container (no network, read-only mounts) and
   write timestamped reports to `test-results/`. Setup in `tests/README.md`.
 
+### Fixed
+- `POST /api/light/<entity>/set` returned an unhandled 500 when `state` was
+  not a string (e.g. `1`, `null`) or the body was a JSON list; it now
+  returns 400.
+
+### Removed
+- Debug `print` calls in `quart_app/blueprints/hass.py`.
+
 ## 2026-11-24
 ### Added
 - `AGENTS.md` with working rules for coding agents; `CLAUDE.md` symlinks to it.
