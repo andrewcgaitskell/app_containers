@@ -1,9 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Read(/workspace/app_containers/**)",
-      "Write(/workspace/app_containers/**)",
-      "Edit(/workspace/app_containers/**)",
+      "Read(/opt/data/app_containers/**)",
+      "Write(/opt/data/app_containers/**)",
+      "Edit(/opt/data/app_containers/**)",
       "Bash(git diff *)",
       "Bash(git status *)",
       "Bash(python3 -m pytest *)"
