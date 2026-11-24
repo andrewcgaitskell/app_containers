@@ -207,7 +207,6 @@ async def test_init_db_pool_does_not_print_password(db, pg_env, create_pool, cap
     assert "placeholder_password" not in capsys.readouterr().out
 
 
-@pytest.mark.xfail(strict=True, reason="app.py imports db_pool by value (None), so shutdown never closes the pool")
 async def test_shutdown_closes_pool(pg, db, pg_env, create_pool):
     await pg.initialize_db()
     pool = db.db_pool
@@ -215,3 +214,10 @@ async def test_shutdown_closes_pool(pg, db, pg_env, create_pool):
     await pg.shutdown()
 
     assert pool.closed
+    assert db.db_pool is None
+
+
+async def test_shutdown_without_pool_is_a_no_op(pg, db):
+    assert db.db_pool is None
+
+    await pg.shutdown()  # must not raise

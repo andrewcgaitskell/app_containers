@@ -1,5 +1,5 @@
-Test run:   20261124T184519Z
-Commit:     809baa1 (+uncommitted changes)
+Test run:   20261124T184737Z
+Commit:     fe6b430 (+uncommitted changes)
 Image:      app-containers-tests:latest (python:3.11-slim)
 Command:    pytest -v -rA  (in container, no network)
 ----------------------------------------------------------------
@@ -12,7 +12,7 @@ configfile: pytest.ini
 testpaths: tests
 plugins: asyncio-1.5.0
 asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
-collecting ... collected 104 items
+collecting ... collected 105 items
 
 tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh] PASSED [  0%]
 tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh] PASSED [  1%]
@@ -35,11 +35,11 @@ tests/health/test_health_scripts.py::test_ha_recovery_after_failures_is_logged P
 tests/health/test_health_scripts.py::test_ha_corrupt_fail_count_treated_as_zero PASSED [ 18%]
 tests/health/test_health_scripts.py::test_ha_trims_oversized_log PASSED  [ 19%]
 tests/health/test_health_scripts.py::test_pg_dump_trigger_success PASSED [ 20%]
-tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[500-0] PASSED [ 21%]
-tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[000-7] PASSED [ 22%]
-tests/health/test_health_scripts.py::test_net_all_up_publishes_retained_state_only PASSED [ 23%]
-tests/health/test_health_scripts.py::test_net_partial_failure_is_still_up PASSED [ 24%]
-tests/health/test_health_scripts.py::test_net_all_down_publishes_anomaly PASSED [ 25%]
+tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[500-0] PASSED [ 20%]
+tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[000-7] PASSED [ 21%]
+tests/health/test_health_scripts.py::test_net_all_up_publishes_retained_state_only PASSED [ 22%]
+tests/health/test_health_scripts.py::test_net_partial_failure_is_still_up PASSED [ 23%]
+tests/health/test_health_scripts.py::test_net_all_down_publishes_anomaly PASSED [ 24%]
 tests/health/test_health_scripts.py::test_net_restored_after_down_publishes_anomaly PASSED [ 25%]
 tests/health/test_health_scripts.py::test_net_missing_venv_fails_without_publishing PASSED [ 26%]
 tests/health/test_health_scripts.py::test_net_missing_publisher_fails PASSED [ 27%]
@@ -56,16 +56,16 @@ tests/health/test_mqtt_publish.py::test_all_options PASSED               [ 37%]
 tests/health/test_mqtt_publish.py::test_username_without_password_sends_empty_password PASSED [ 38%]
 tests/health/test_mqtt_publish.py::test_publish_failure_returns_1 PASSED [ 39%]
 tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args0] PASSED [ 40%]
-tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args1] PASSED [ 41%]
-tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args2] PASSED [ 42%]
-tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_dump-data_dump-extra_args0] PASSED [ 43%]
-tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_data_only-data_data_only-extra_args1] PASSED [ 44%]
-tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_dump] PASSED [ 45%]
-tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_data_only] PASSED [ 46%]
-tests/postgres/test_backup_app.py::test_missing_zip_binary_returns_500 PASSED [ 47%]
-tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_dump] PASSED [ 48%]
-tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_data_only] PASSED [ 49%]
-tests/postgres/test_backup_app.py::test_backup_dir_defaults_to_backups PASSED [ 50%]
+tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args1] PASSED [ 40%]
+tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args2] PASSED [ 41%]
+tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_dump-data_dump-extra_args0] PASSED [ 42%]
+tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_data_only-data_data_only-extra_args1] PASSED [ 43%]
+tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_dump] PASSED [ 44%]
+tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_data_only] PASSED [ 45%]
+tests/postgres/test_backup_app.py::test_missing_zip_binary_returns_500 PASSED [ 46%]
+tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_dump] PASSED [ 47%]
+tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_data_only] PASSED [ 48%]
+tests/postgres/test_backup_app.py::test_backup_dir_defaults_to_backups PASSED [ 49%]
 tests/postgres/test_backup_app.py::test_last_backup_defaults_to_epoch PASSED [ 50%]
 tests/postgres/test_backup_app.py::test_last_backup_round_trip PASSED    [ 51%]
 tests/postgres/test_backup_app.py::test_last_backup_invalid_file_raises PASSED [ 52%]
@@ -74,8 +74,9 @@ tests/postgres/test_backup_app.py::test_init_db_pool_requires_env[POSTGRES_PASSW
 tests/postgres/test_backup_app.py::test_init_db_pool_requires_env[POSTGRES_DB] PASSED [ 55%]
 tests/postgres/test_backup_app.py::test_init_db_pool_creates_pool_once PASSED [ 56%]
 tests/postgres/test_backup_app.py::test_init_db_pool_does_not_print_password PASSED [ 57%]
-tests/postgres/test_backup_app.py::test_shutdown_closes_pool XFAIL (...) [ 58%]
-tests/quart_app/test_hass.py::test_set_light_on_calls_turn_on_with_options PASSED [ 59%]
+tests/postgres/test_backup_app.py::test_shutdown_closes_pool PASSED      [ 58%]
+tests/postgres/test_backup_app.py::test_shutdown_without_pool_is_a_no_op PASSED [ 59%]
+tests/quart_app/test_hass.py::test_set_light_on_calls_turn_on_with_options PASSED [ 60%]
 tests/quart_app/test_hass.py::test_set_light_off_calls_turn_off PASSED   [ 60%]
 tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs0-state must be 'on' or 'off'] PASSED [ 61%]
 tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs1-state must be 'on' or 'off'] PASSED [ 62%]
@@ -92,11 +93,11 @@ tests/quart_app/test_hass.py::test_light_ui_renders_entity PASSED        [ 72%]
 tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[%3Cscript%3Ealert(1)%3C/script%3E-<script>alert(1)</script>-Light: &lt;script&gt;alert(1)&lt;/script&gt;-const entity = "\\u003cscript\\u003ealert(1)\\u003c/script\\u003e";] PASSED [ 73%]
 tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[x%22;alert(1);//-x";alert(1);//-Light: x&quot;;alert(1);//-const entity = "x\\";alert(1);//";] PASSED [ 74%]
 tests/quart_app/test_main.py::test_index PASSED                          [ 75%]
-tests/quart_app/test_main.py::test_write_message_inserts_json_payload PASSED [ 75%]
-tests/quart_app/test_main.py::test_write_message_swallows_db_errors PASSED [ 76%]
-tests/quart_app/test_main.py::test_init_db_creates_database_when_missing PASSED [ 77%]
-tests/quart_app/test_main.py::test_init_db_skips_create_when_database_exists PASSED [ 78%]
-tests/quart_app/test_main.py::test_mqtt_listener_decodes_json_and_falls_back_to_raw PASSED [ 79%]
+tests/quart_app/test_main.py::test_write_message_inserts_json_payload PASSED [ 76%]
+tests/quart_app/test_main.py::test_write_message_swallows_db_errors PASSED [ 77%]
+tests/quart_app/test_main.py::test_init_db_creates_database_when_missing PASSED [ 78%]
+tests/quart_app/test_main.py::test_init_db_skips_create_when_database_exists PASSED [ 79%]
+tests/quart_app/test_main.py::test_mqtt_listener_decodes_json_and_falls_back_to_raw PASSED [ 80%]
 tests/quart_app/test_plots.py::test_extract_temperature[payload0-21.5] PASSED [ 80%]
 tests/quart_app/test_plots.py::test_extract_temperature[payload1-19.0] PASSED [ 81%]
 tests/quart_app/test_plots.py::test_extract_temperature[{"temperature": 18.25}-18.25] PASSED [ 82%]
@@ -153,6 +154,10 @@ user: placeholder_user database: placeholder_db host: localhost
 Initializing the db_pool...
 user: placeholder_user database: placeholder_db host: localhost
 db_pool already initialized
+__________________________ test_shutdown_closes_pool ___________________________
+----------------------------- Captured stdout call -----------------------------
+user: placeholder_user database: placeholder_db host: localhost
+Initializing the db_pool...
 _____________________ test_ha_connection_error_returns_500 _____________________
 ------------------------------ Captured log call -------------------------------
 ERROR    root:hass.py:91 Error calling Home Assistant
@@ -175,7 +180,7 @@ ERROR    root:main.py:102 Error writing message to DB: connection refused
 ____________ test_mqtt_listener_decodes_json_and_falls_back_to_raw _____________
 ------------------------------ Captured log call -------------------------------
 WARNING  root:main.py:117 Failed to decode JSON; storing raw payload.
--------------- generated xml file: /results/20261124T184519Z.xml ---------------
+-------------- generated xml file: /results/20261124T184737Z.xml ---------------
 =========================== short test summary info ============================
 PASSED tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh]
 PASSED tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh]
@@ -237,6 +242,8 @@ PASSED tests/postgres/test_backup_app.py::test_init_db_pool_requires_env[POSTGRE
 PASSED tests/postgres/test_backup_app.py::test_init_db_pool_requires_env[POSTGRES_DB]
 PASSED tests/postgres/test_backup_app.py::test_init_db_pool_creates_pool_once
 PASSED tests/postgres/test_backup_app.py::test_init_db_pool_does_not_print_password
+PASSED tests/postgres/test_backup_app.py::test_shutdown_closes_pool
+PASSED tests/postgres/test_backup_app.py::test_shutdown_without_pool_is_a_no_op
 PASSED tests/quart_app/test_hass.py::test_set_light_on_calls_turn_on_with_options
 PASSED tests/quart_app/test_hass.py::test_set_light_off_calls_turn_off
 PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs0-state must be 'on' or 'off']
@@ -280,6 +287,5 @@ PASSED tests/quart_app/test_plots.py::test_presence_page_renders
 PASSED tests/quart_app/test_plots.py::test_presence_page_renders_empty
 PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.temperature_plot]
 PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.presence_plot]
-XFAIL tests/postgres/test_backup_app.py::test_shutdown_closes_pool - app.py imports db_pool by value (None), so shutdown never closes the pool
-======================== 103 passed, 1 xfailed in 3.47s ========================
+============================= 105 passed in 3.44s ==============================
 RESULT: PASSED

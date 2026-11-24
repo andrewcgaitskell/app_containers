@@ -34,6 +34,9 @@ History before November 2026 is in `git log`.
   `/usr/local/bin/run-app-tests` to pick this up.
 
 ### Fixed
+- `postgres/quart/app.py` never closed the DB pool on shutdown: it imported
+  `db_pool` by value (always `None`). It now reads `db.db_pool`, closes it,
+  and clears it. Takes effect when the Postgres container restarts.
 - `POST /api/light/<entity>/set` returned an unhandled 500 when `state` was
   not a string (e.g. `1`, `null`) or the body was a JSON list; it now
   returns 400.
