@@ -36,10 +36,11 @@ COPY net-connectivity-check.sh /scripts/net-connectivity-check.sh
 COPY mqtt-publish.py /scripts/mqtt_publish.py
 RUN chmod +x /scripts/*.sh
 
-# Crontab
+# Crontab: cron reads /etc/cron.d/ directly (system format, with a user
+# column). Do not also load it with `crontab`, which treats the user column
+# as the command and runs a failing duplicate of every job.
 COPY health-crontab /etc/cron.d/health-crontab
-RUN chmod 0644 /etc/cron.d/health-crontab \
-    && crontab /etc/cron.d/health-crontab
+RUN chmod 0644 /etc/cron.d/health-crontab
 
 # Ensure log/state directories exist so scripts don't fail on first run
 RUN mkdir -p /var/log /var/lib/health /opt/data/health

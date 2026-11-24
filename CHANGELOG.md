@@ -35,6 +35,14 @@ History before November 2026 is in `git log`.
 - `net-speedtest-daily.sh` inserted the speedtest error text and server
   names into MQTT JSON payloads unescaped, so a quote or backslash produced
   invalid JSON. They are now escaped (control characters become spaces).
+- The daily internet speed test was commented out in `health/health-crontab`
+  and never ran. It is now scheduled daily at 03:17, logging to
+  `/var/log/net-speedtest-daily.log`. Takes effect when the health
+  container is rebuilt.
+- The health image loaded `health-crontab` both into `/etc/cron.d/` and as
+  root's user crontab. The user-crontab copy treated the `root` column as
+  the command, so a failing duplicate of every job ran on schedule. The
+  file is now installed only in `/etc/cron.d/`. Takes effect on rebuild.
 
 ### Removed
 - Debug `print` calls in `quart_app/blueprints/hass.py`.

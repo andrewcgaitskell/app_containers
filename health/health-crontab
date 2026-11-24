@@ -1,5 +1,6 @@
 # Health container crontab — all automated checks live here
-# Format: minute hour day month weekday command
+# Installed to /etc/cron.d/ (system crontab format, includes a user column)
+# Format: minute hour day month weekday user command
 
 # Home Assistant responsiveness check — every 5 minutes
 */5 * * * * root /scripts/ha-health-monitor.sh
@@ -10,9 +11,9 @@
 # Intended crontab entry (every 5 minutes):
 */5 * * * * root /scripts/net-connectivity-check.sh >> /var/log/net-connectivity-check.log 2>&1
 
-# Intended crontab entry (once daily, e.g. 03:17). Cron runs a minimal
+# Internet speed test — once daily at 03:17. Cron runs a minimal
 # environment, so call scripts by full path — no venv activation needed,
-# since we invoke the venv's binaries directly:
-#   17 3 * * * root /scripts/net-speedtest-daily.sh >> /var/log/net-speedtest-daily.log 2>&1
+# since we invoke the venv's binaries directly.
+17 3 * * * root /scripts/net-speedtest-daily.sh >> /var/log/net-speedtest-daily.log 2>&1
 
 # Blank line required at end of file for cron to parse it correctly

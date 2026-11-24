@@ -32,6 +32,13 @@ def test_mqtt_helper_installed_under_name_scripts_expect():
     assert COPIES.get("mqtt-publish.py") == "/scripts/mqtt_publish.py"
 
 
+def test_crontab_installed_only_as_system_crontab():
+    # The file has a user column, so it must live in /etc/cron.d/ only.
+    # Loading it with `crontab` too would run "root" as the command.
+    assert COPIES.get("health-crontab", "").startswith("/etc/cron.d/")
+    assert not re.search(r"(?<![\w-])crontab\s+/", DOCKERFILE)
+
+
 def test_crontab_ends_with_newline():
     assert CRONTAB.endswith("\n")
 
@@ -46,3 +53,15 @@ def test_crontab_entries_are_well_formed_and_point_at_installed_scripts():
         assert fields[5] == "root", line
         script = fields[6].split()[0]
         assert script in installed, f"{script} is not copied into the image"
+
+
+def test_every_installed_script_is_scheduled():
+    scheduled = {line.split(None, 6)[6].split()[0] for line in active_cron_lines()}
+    installed_scripts = {dest for dest in COPIES.values() if dest.endswith(".sh")}
+    assert installed_scripts - scheduled == set()
+
+
+def test_speedtest_runs_once_daily():
+    [line] = [l for l in active_cron_lines() if "net-speedtest-daily.sh" in l]
+    minute, hour, dom, month, dow = line.split()[:5]
+    assert (minute, hour, dom, month, dow) == ("17", "3", "*", "*", "*")
