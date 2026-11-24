@@ -11,7 +11,8 @@
       "Bash(python3 -m pytest)",
       "Bash(python3 -m pytest *)",
       "Bash(python3 -m py_compile *)",
-      "Bash(bash -n *)"
+      "Bash(bash -n *)",
+      "Bash(sudo /usr/local/bin/run-app-tests)"
     ],
     "deny": [
       "Read(**/.env)",
@@ -39,7 +40,6 @@
       "Bash(docker *)",
       "Bash(docker-compose *)",
       "Bash(podman *)",
-      "Bash(sudo *)",
       "Bash(su *)",
       "Bash(systemctl *)",
       "Bash(curl *)",
