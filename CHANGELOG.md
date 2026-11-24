@@ -32,6 +32,9 @@ History before November 2026 is in `git log`.
 - `/ui/light/<entity>` inserted the entity ID from the URL into the page
   unescaped, so a crafted link could run script on the page. It is now
   HTML-escaped in the page text and safely encoded in the script.
+- `net-speedtest-daily.sh` inserted the speedtest error text and server
+  names into MQTT JSON payloads unescaped, so a quote or backslash produced
+  invalid JSON. They are now escaped (control characters become spaces).
 
 ### Removed
 - Debug `print` calls in `quart_app/blueprints/hass.py`.

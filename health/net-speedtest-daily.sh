@@ -70,6 +70,16 @@ mqtt_publish() {
         "${retain_flag[@]}" "${auth_args[@]}"
 }
 
+# Make text safe to embed inside a JSON string: control characters become
+# spaces, then backslashes and double quotes are escaped.
+json_escape() {
+    local s
+    s="$(printf '%s' "$1" | tr '\000-\037' ' ')"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    printf '%s' "$s"
+}
+
 ### ---- Sanity checks -------------------------------------------------------
 
 if [[ ! -x "$VENV_PYTHON" || ! -x "$VENV_SPEEDTEST" ]]; then
@@ -94,7 +104,7 @@ if [[ $exit_code -ne 0 || -z "$raw_json" ]]; then
     error_msg="$(tr -d '\n' </tmp/speedtest-daily-error.log | tail -c 300)"
     log "Speedtest FAILED (exit code ${exit_code}): ${error_msg}"
     mqtt_publish "$MQTT_TOPIC_ANOMALY" \
-        "{\"type\":\"speedtest_failed\",\"error\":\"${error_msg}\",\"timestamp\":\"${timestamp}\"}"
+        "{\"type\":\"speedtest_failed\",\"error\":\"$(json_escape "$error_msg")\",\"timestamp\":\"${timestamp}\"}"
     exit 1
 fi
 
@@ -122,7 +132,7 @@ ping_ms_rounded="$(awk -v p="$ping_ms" 'BEGIN { printf "%.1f", p }')"
 server_name="${server_name//_/ }"
 server_sponsor="${server_sponsor//_/ }"
 
-result_payload="{\"timestamp\":\"${timestamp}\",\"download_mbps\":${download_mbps},\"upload_mbps\":${upload_mbps},\"ping_ms\":${ping_ms_rounded},\"server\":\"${server_name}\",\"sponsor\":\"${server_sponsor}\"}"
+result_payload="{\"timestamp\":\"${timestamp}\",\"download_mbps\":${download_mbps},\"upload_mbps\":${upload_mbps},\"ping_ms\":${ping_ms_rounded},\"server\":\"$(json_escape "$server_name")\",\"sponsor\":\"$(json_escape "$server_sponsor")\"}"
 
 log "Speedtest result: download=${download_mbps}Mbps upload=${upload_mbps}Mbps ping=${ping_ms_rounded}ms server=\"${server_sponsor} (${server_name})\""
 

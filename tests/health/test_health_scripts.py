@@ -364,12 +364,29 @@ def test_speedtest_failure_publishes_failed_anomaly(sb):
     assert "Cannot retrieve speedtest configuration" in payload(msg)["error"]
 
 
-@pytest.mark.xfail(strict=True, reason="error text is inserted into JSON unescaped; a quote makes the payload invalid")
-def test_speedtest_failure_with_quote_in_error_is_valid_json(sb):
-    sb.run(SPEED, SPEEDTEST_EXIT=1, SPEEDTEST_STDERR='Unable to connect to "www.speedtest.net"')
+@pytest.mark.parametrize(
+    "stderr, expected",
+    [
+        ('Unable to connect to "www.speedtest.net"', 'Unable to connect to "www.speedtest.net"'),
+        ("path C:\\temp\\x failed", "path C:\\temp\\x failed"),
+        ("tab\there\rcr", "tab here cr"),
+    ],
+)
+def test_speedtest_failure_error_text_is_escaped(sb, stderr, expected):
+    sb.run(SPEED, SPEEDTEST_EXIT=1, SPEEDTEST_STDERR=stderr)
 
     [msg] = sb.mqtt_messages()
     assert payload(msg)["type"] == "speedtest_failed"
+    assert payload(msg)["error"] == expected
+
+
+def test_speedtest_server_names_are_escaped(sb):
+    sb.run(SPEED, SPEEDTEST_JSON=speedtest_json(
+        93_400_000, 20_000_000, 12, name='St "Albans"', sponsor="Back\\slash ISP"))
+
+    [msg] = sb.mqtt_messages()
+    assert payload(msg)["server"] == 'St "Albans"'
+    assert payload(msg)["sponsor"] == "Back\\slash ISP"
 
 
 def test_speedtest_missing_venv_fails(sb):
