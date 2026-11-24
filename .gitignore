@@ -111,7 +111,7 @@ ipython_config.py
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#   https://pdm-project.org/en/latest/usage/project/#working-with-project-wide-dependencies
 #pdm.lock
 #pdm.toml
 .pdm-python
@@ -136,6 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -143,6 +144,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+docker-compose.override.yml
 
 # Spyder project settings
 .spyderproject
@@ -206,9 +208,30 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-
 # Ignore everything inside the data directory and its subdirectories
 data/**
 
 # Allow README files in the data directory and all its subdirectories
+!data/**/
+!data/**/README.md
 !data/**/ReadMe.md
+
+# Home Assistant secrets and private keys
+**/secrets.yaml
+**/secrets.yml
+**/.storage/
+**/.cloud/
+**/.google.token
+*.key
+*.pem
+*.crt
+*.csr
+
+# Home Assistant runtime state and generated data
+**/known_devices.yaml
+**/ip_bans.yaml
+**/home-assistant_v2.db*
+**/home-assistant.log*
+**/tts/
+**/deps/
+**/backups/
