@@ -19,12 +19,12 @@ set -u
 CONTAINER_NAME="homeassistant"
 HEALTH_URL="http://localhost:8123/manifest.json"
 
-LOGFILE="/var/log/monitor.log"
-STATE_DIR="/var/lib/health"
+LOGFILE="${LOGFILE:-/var/log/monitor.log}"
+STATE_DIR="${STATE_DIR:-/var/lib/health}"
 FAIL_COUNT_FILE="${STATE_DIR}/ha_fail_count"
 COOLDOWN_FLAG_FILE="${STATE_DIR}/ha_restart_cooldown_until"
 
-MAX_LOG_SIZE=$((20 * 1024 * 1024))   # 20 MB – when to trim the log
+MAX_LOG_SIZE=${MAX_LOG_SIZE:-$((20 * 1024 * 1024))}   # 20 MB – when to trim the log
 KEEP_LINES=2500                      # Keep roughly the last 2500 lines when trimming
 
 MAX_FAILS=3                          # Consecutive failures required before restarting

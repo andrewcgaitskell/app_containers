@@ -9,7 +9,7 @@
 set -u
 
 TRIGGER_URL="http://localhost:8090/trigger_data_dump"
-LOGFILE="/var/log/data-dump-trigger.log"
+LOGFILE="${LOGFILE:-/var/log/data-dump-trigger.log}"
 
 mkdir -p "$(dirname "$LOGFILE")"
 

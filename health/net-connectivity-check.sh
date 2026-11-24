@@ -23,7 +23,7 @@ set -u
 
 # Location of the dedicated venv created by net-speedtest-setup.sh, and
 # the mqtt_publish.py helper that ships alongside this script.
-VENV_DIR="/opt/net-monitor/venv"
+VENV_DIR="${VENV_DIR:-/opt/net-monitor/venv}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MQTT_PUBLISH_PY="${SCRIPT_DIR}/mqtt_publish.py"
 
@@ -49,7 +49,7 @@ MQTT_TOPIC_STATE="net/connectivity/state"
 MQTT_TOPIC_ANOMALY="net/connectivity/anomaly"
 
 # File used to remember the last known state between cron runs.
-STATE_FILE="/var/tmp/net-connectivity-last-state"
+STATE_FILE="${STATE_FILE:-/var/tmp/net-connectivity-last-state}"
 
 ### ---- Helpers -----------------------------------------------------------
 

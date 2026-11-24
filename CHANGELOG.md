@@ -14,6 +14,16 @@ History before November 2026 is in `git log`.
 - Docker test runner: `tests/Dockerfile` and `tests/run-tests-docker.sh`
   run the tests in an isolated container (no network, read-only mounts) and
   write timestamped reports to `test-results/`. Setup in `tests/README.md`.
+- Tests for the health container under `tests/health/`: behaviour of
+  `ha-health-monitor.sh`, `pg-dump-trigger.sh`, `net-connectivity-check.sh`,
+  `net-speedtest-daily.sh` and `mqtt-publish.py` with all external commands
+  stubbed, plus checks that the Dockerfile, crontab and scripts fit together.
+
+### Changed
+- Health scripts: log, state and venv paths can be overridden by
+  environment variables (`LOGFILE`, `STATE_DIR`, `MAX_LOG_SIZE`, `VENV_DIR`,
+  `STATE_FILE`) for testing. Defaults are unchanged.
+- Test runner mounts `health/` and allows executables in its `/tmp`.
 
 ### Fixed
 - `POST /api/light/<entity>/set` returned an unhandled 500 when `state` was

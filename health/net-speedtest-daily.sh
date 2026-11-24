@@ -24,7 +24,7 @@ set -u
 
 # Location of the dedicated venv created by net-speedtest-setup.sh, and
 # the mqtt_publish.py helper that ships alongside this script.
-VENV_DIR="/opt/net-monitor/venv"
+VENV_DIR="${VENV_DIR:-/opt/net-monitor/venv}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MQTT_PUBLISH_PY="${SCRIPT_DIR}/mqtt_publish.py"
 

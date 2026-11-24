@@ -6,6 +6,10 @@ throwaway Docker container to run, so nothing needs installing on the host.
 ## Layout
 - `quart_app/` – tests for the Quart app. Postgres, MQTT and Home Assistant
   are replaced with in-memory fakes; no test talks to a live service.
+- `health/` – tests for the health container's cron scripts and
+  `mqtt-publish.py`. Scripts run in a temp directory with `curl`, `docker`,
+  `ping`, `speedtest-cli` and the MQTT publisher replaced by recording stubs,
+  so nothing is contacted, restarted or published.
 - `Dockerfile` – test image (Python 3.11 + `quart_app/requirements-dev.txt`).
 - `run-tests-docker.sh` – builds the image, runs the tests, writes results.
 
