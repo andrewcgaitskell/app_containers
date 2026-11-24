@@ -5,6 +5,15 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 History before November 2026 is in `git log`.
 
 ## [Unreleased]
+### Added
+- Test suite for `quart_app` under `tests/quart_app/` (routes, MQTT
+  listener, DB writes, Home Assistant calls, temperature and presence
+  plots). All external services are faked. Run with `python3 -m pytest`
+  after `pip install -r quart_app/requirements-dev.txt`.
+- `pytest.ini` and `quart_app/requirements-dev.txt`.
+- Docker test runner: `tests/Dockerfile` and `tests/run-tests-docker.sh`
+  run the tests in an isolated container (no network, read-only mounts) and
+  write timestamped reports to `test-results/`. Setup in `tests/README.md`.
 
 ## 2026-11-24
 ### Added
