@@ -19,6 +19,9 @@ History before November 2026 is in `git log`.
 - `POST /api/light/<entity>/set` returned an unhandled 500 when `state` was
   not a string (e.g. `1`, `null`) or the body was a JSON list; it now
   returns 400.
+- `/ui/light/<entity>` inserted the entity ID from the URL into the page
+  unescaped, so a crafted link could run script on the page. It is now
+  HTML-escaped in the page text and safely encoded in the script.
 
 ### Removed
 - Debug `print` calls in `quart_app/blueprints/hass.py`.

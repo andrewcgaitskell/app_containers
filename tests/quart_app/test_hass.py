@@ -111,4 +111,33 @@ async def test_light_ui_renders_entity(client):
 
     assert resp.status_code == 200
     assert resp.content_type.startswith("text/html")
-    assert "Light: light.kitchen" in await resp.get_data(as_text=True)
+    page = await resp.get_data(as_text=True)
+    assert "Light: light.kitchen" in page
+    assert 'const entity = "light.kitchen";' in page
+
+
+@pytest.mark.parametrize(
+    "path, raw, escaped_html, escaped_js",
+    [
+        (
+            "%3Cscript%3Ealert(1)%3C/script%3E",
+            "<script>alert(1)</script>",
+            "Light: &lt;script&gt;alert(1)&lt;/script&gt;",
+            r'const entity = "\u003cscript\u003ealert(1)\u003c/script\u003e";',
+        ),
+        (
+            'x%22;alert(1);//',
+            'x";alert(1);//',
+            "Light: x&quot;;alert(1);//",
+            r'const entity = "x\";alert(1);//";',
+        ),
+    ],
+)
+async def test_light_ui_escapes_entity_id(client, path, raw, escaped_html, escaped_js):
+    resp = await client.get(f"/ui/light/{path}")
+    page = await resp.get_data(as_text=True)
+
+    assert resp.status_code == 200
+    assert raw not in page
+    assert escaped_html in page
+    assert escaped_js in page

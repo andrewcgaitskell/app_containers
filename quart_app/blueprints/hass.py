@@ -1,4 +1,5 @@
 import os
+import html
 import json
 import logging
 from typing import Tuple, Any
@@ -124,19 +125,28 @@ async def light_ui(entity_id):
     Simple HTML UI with a checkbox switch to turn the entity on/off.
     This is intentionally minimal and uses fetch to call our endpoints above.
     """
-    html = f"""
+    # entity_id comes from the URL: escape it for HTML text, and encode it as a
+    # JS string literal with <, >, & escaped so it cannot close the <script>.
+    entity_html = html.escape(entity_id)
+    entity_js = (
+        json.dumps(entity_id)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
+    page = f"""
     <!doctype html>
     <html>
       <head>
         <meta charset="utf-8"/>
-        <title>Light Switch - {entity_id}</title>
+        <title>Light Switch - {entity_html}</title>
         <style>
           body {{ font-family: Arial, sans-serif; margin: 2rem; }}
           .switch {{ display:flex; align-items:center; gap:1rem; }}
         </style>
       </head>
       <body>
-        <h1>Light: {entity_id}</h1>
+        <h1>Light: {entity_html}</h1>
         <div class="switch">
           <label>
             <input id="toggle" type="checkbox"/>
@@ -144,7 +154,7 @@ async def light_ui(entity_id):
           </label>
         </div>
         <script>
-          const entity = "{entity_id}";
+          const entity = {entity_js};
           async function fetchState() {{
             const resp = await fetch(`/api/light/${{encodeURIComponent(entity)}}/get_state`);
             if (!resp.ok) return null;
@@ -187,4 +197,4 @@ async def light_ui(entity_id):
       </body>
     </html>
     """
-    return Response(html, content_type="text/html")
+    return Response(page, content_type="text/html")
