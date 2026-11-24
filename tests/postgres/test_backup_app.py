@@ -1,8 +1,7 @@
 """Tests for the Postgres container's backup app (postgres/quart/).
 
 pg_dump and zip are never executed: subprocess.run is replaced by a fake
-that records each command. The asyncpg pool is faked too, and only
-placeholder credentials are used.
+that records each command.
 """
 import importlib.util
 import subprocess
@@ -23,24 +22,8 @@ def load(name, filename):
     return module
 
 
-class FakePool:
-    def __init__(self):
-        self.closed = False
-
-    async def close(self):
-        self.closed = True
-
-
 @pytest.fixture
-def db(monkeypatch):
-    module = load("pg_backup_db", "db.py")
-    # app.py does `from db import ...`
-    monkeypatch.setitem(sys.modules, "db", module)
-    return module
-
-
-@pytest.fixture
-def pg(db, monkeypatch, tmp_path):
+def pg(monkeypatch, tmp_path):
     module = load("pg_backup_app", "app.py")
     module.BACKUP_DIR = str(tmp_path / "backups")
 
@@ -68,7 +51,6 @@ def pg(db, monkeypatch, tmp_path):
 @pytest.fixture
 def client(pg):
     pg.app.config["TESTING"] = True
-    # test_client() does not run before_serving, so no DB pool is created.
     return pg.app.test_client()
 
 
@@ -128,7 +110,7 @@ async def test_get_is_not_allowed(pg, client, route):
     assert pg.commands == []
 
 
-def test_backup_dir_defaults_to_backups(db, monkeypatch):
+def test_backup_dir_defaults_to_backups(monkeypatch):
     monkeypatch.delenv("BACKUP_DIR", raising=False)
 
     assert load("pg_backup_app_defaults", "app.py").BACKUP_DIR == "/backups"
@@ -252,7 +234,7 @@ async def test_backup_not_cleaned_up_when_dump_fails(pg, client):
 
 
 @pytest.mark.parametrize("value, expected", [(None, 30), ("7", 7), ("abc", 30), ("0", 30), ("-5", 30)])
-def test_keep_days_setting(db, monkeypatch, value, expected):
+def test_keep_days_setting(monkeypatch, value, expected):
     if value is None:
         monkeypatch.delenv("BACKUP_KEEP_DAYS", raising=False)
     else:
@@ -282,69 +264,15 @@ def test_last_backup_invalid_file_raises(pg):
         pg.get_last_backup_timestamp()
 
 
-# ------------------------------------------------------------------ db pool
+# ------------------------------------------------------- no database pool
 
-@pytest.fixture
-def pg_env(monkeypatch):
-    for key, value in {
-        "POSTGRES_USER": "placeholder_user",
-        "POSTGRES_PASSWORD": "placeholder_password",
-        "POSTGRES_DB": "placeholder_db",
-    }.items():
-        monkeypatch.setenv(key, value)
-    monkeypatch.delenv("POSTGRES_HOST", raising=False)
+def test_app_has_no_startup_or_shutdown_hooks(pg):
+    # The app only shells out to pg_dump; it should not open DB connections.
+    assert pg.app.before_serving_funcs == []
+    assert pg.app.after_serving_funcs == []
 
 
-@pytest.fixture
-def create_pool(db, monkeypatch):
-    calls = []
-
-    async def fake_create_pool(**kwargs):
-        calls.append(kwargs)
-        return FakePool()
-
-    monkeypatch.setattr(db.asyncpg, "create_pool", fake_create_pool)
-    return calls
-
-
-@pytest.mark.parametrize("missing", ["POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"])
-async def test_init_db_pool_requires_env(db, pg_env, create_pool, monkeypatch, missing):
-    monkeypatch.delenv(missing)
-
-    with pytest.raises(ValueError, match="Missing required Postgres environment variables"):
-        await db.init_db_pool()
-    assert create_pool == []
-
-
-async def test_init_db_pool_creates_pool_once(db, pg_env, create_pool):
-    first = await db.init_db_pool()
-    second = await db.init_db_pool()
-
-    assert first is second is db.db_pool
-    assert create_pool == [{
-        "user": "placeholder_user", "password": "placeholder_password",
-        "database": "placeholder_db", "host": "localhost",
-        "min_size": 5, "max_size": 20,
-    }]
-
-
-async def test_init_db_pool_does_not_print_password(db, pg_env, create_pool, capsys):
-    await db.init_db_pool()
-
-    assert "placeholder_password" not in capsys.readouterr().out
-
-
-async def test_shutdown_closes_pool(pg, db, pg_env, create_pool):
-    await pg.initialize_db()
-    pool = db.db_pool
-
-    await pg.shutdown()
-
-    assert pool.closed
-    assert db.db_pool is None
-
-
-async def test_shutdown_without_pool_is_a_no_op(pg, db):
-    assert db.db_pool is None
-
-    await pg.shutdown()  # must not raise
+def test_app_does_not_import_asyncpg():
+    source = (PG_QUART / "app.py").read_text()
+    assert "asyncpg" not in source
+    assert not (PG_QUART / "db.py").exists()

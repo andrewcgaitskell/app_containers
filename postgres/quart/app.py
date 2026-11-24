@@ -6,14 +6,9 @@ import subprocess
 from datetime import datetime, timedelta
 from datetime import timezone
 import asyncio
-import asyncpg
 import aiofiles
 from zoneinfo import ZoneInfo
 
-# Import the module, not db_pool itself: init_db_pool() rebinds db.db_pool,
-# so a name imported here would stay None.
-import db
-from db import init_db_pool
 
 # Create a blueprint
 backup_blueprint = Blueprint('backup', __name__)
@@ -194,17 +189,6 @@ app = Quart(__name__)
 
 # Register the blueprint
 app.register_blueprint(backup_blueprint)
-
- # Use Quart's async lifecycle hook (before_serving instead of before_first_request)
-@app.before_serving
-async def initialize_db():
-    await init_db_pool()
-
-@app.after_serving
-async def shutdown():
-    if db.db_pool is not None:
-        await db.db_pool.close()
-        db.db_pool = None
 
 
 if __name__ == '__main__':

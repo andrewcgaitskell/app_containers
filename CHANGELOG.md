@@ -63,6 +63,11 @@ History before November 2026 is in `git log`.
   file is now installed only in `/etc/cron.d/`. Takes effect on rebuild.
 
 ### Removed
+- Unused database connection pool in the Postgres backup app:
+  `postgres/quart/db.py` deleted, and the startup/shutdown hooks that
+  opened 5–20 idle connections removed from `app.py`. Backups only ever
+  used `pg_dump`. The app no longer needs `POSTGRES_PASSWORD` at startup.
+  Takes effect when the Postgres container restarts.
 - Debug `print` calls in `quart_app/blueprints/hass.py`.
 
 ## 2026-11-24
