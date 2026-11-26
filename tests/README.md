@@ -13,6 +13,9 @@ throwaway Docker container to run, so nothing needs installing on the host.
 - `postgres/` – tests for the backup app in `postgres/quart/`. `pg_dump`
   and `zip` are never run (subprocess is faked) and the DB pool is faked;
   only `postgres/quart/` is mounted, not `init.sql` or `pg_hba.conf`.
+- `backup/` – tests for `backup/offsite-backup.sh`. Runs against a fake
+  `/opt/data` tree; `gpg` and `rclone` are stubs, so nothing is encrypted
+  or uploaded.
 - `Dockerfile` – test image (Python 3.11 + `quart_app/requirements-dev.txt`).
 - `run-tests-docker.sh` – builds the image, runs the tests, writes results.
 

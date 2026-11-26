@@ -29,6 +29,19 @@ History before November 2026 is in `git log`.
   `tests/postgres/`: both dump endpoints, failure handling, the
   last-backup timestamp helpers, and DB pool setup. `pg_dump`, `zip` and
   the pool are faked.
+- Home Assistant automation "Andrew Bedroom Radiator night quiet"
+  (`id: '1796256000001'`) in `/opt/data/home_assistant/config/automations.yaml`
+  (outside this repository): sets `climate.andrew_bedroom_radiator`
+  (SONOFF TRVZB) to `off` at 23:00 and back to `heat` at 07:00, so the
+  valve motor doesn't buzz overnight. Backup of the previous file is
+  `automations.yaml.bak` in the same directory.
+- Off-site backup: `backup/offsite-backup.sh` packs the data needed to
+  rebuild the Pi (HA config, Zigbee2MQTT, OTBR, Matter, ESPHome,
+  `compose/.env`, Blockly programs, Jupyter, latest Postgres dump),
+  encrypts it with gpg and uploads it to Google Drive with rclone, keeping
+  the newest 14. Setup, cron line and restore steps in `backup/README.md`.
+  Not active until set up on the host. Tests in `tests/backup/`; the
+  Docker test runner now mounts `backup/` (re-run its `install` line).
 
 ### Changed
 - Health scripts: log, state and venv paths can be overridden by
