@@ -43,6 +43,16 @@ History before November 2026 is in `git log`.
   (`sensor.fermenting_house_thermometer_temperature`). The heater is switched off
   if the probe is unavailable or silent for 2 hours. Re-checks every 5
   minutes and on HA start / automation reload.
+- Temperature chart for Zigbee2MQTT devices in `quart_app`:
+  `/temperature/zigbee/<friendly name>` charts the `temperature` readings
+  stored for topic `zigbee2mqtt/<friendly name>`, using the same page as the
+  Shelly chart. Optional `?target=22` draws a dashed setpoint line, e.g.
+  `/temperature/zigbee/Fermenting%20House%20Thermometer?target=22`. The
+  Shelly route `/temperature/<device>` is unchanged. Tests in
+  `tests/quart_app/test_plots.py`.
+- Claude Code skill `.claude/skills/quart-chart/SKILL.md`: how charts in
+  `quart_app` get their data, the existing routes and template to reuse,
+  and the testing and changelog steps for adding a new chart.
 - Off-site backup: `backup/offsite-backup.sh` packs the data needed to
   rebuild the Pi (HA config, Zigbee2MQTT, OTBR, Matter, ESPHome,
   `compose/.env`, Blockly programs, Jupyter, latest Postgres dump),

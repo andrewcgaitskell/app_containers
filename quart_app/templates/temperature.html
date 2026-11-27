@@ -48,10 +48,13 @@
     <p class="latest">{{ "%.1f"|format(latest.y) }} °C</p>
     <p class="when" id="when" data-ts="{{ latest.x }}"></p>
   {% endif %}
+  {% if target is not none %}
+    <p class="when">Target {{ "%.1f"|format(target) }} °C (dashed line)</p>
+  {% endif %}
 
   <nav aria-label="Time range">
     {% for h, label in [(6, "6 hours"), (24, "24 hours"), (168, "7 days"), (720, "30 days")] %}
-      <a href="{{ url_for('temperature.temperature', device=device, hours=h) }}"
+      <a href="{{ url_for(endpoint, hours=h, **endpoint_args) }}"
          {% if h == hours %}aria-current="true"{% endif %}>{{ label }}</a>
     {% endfor %}
   </nav>
@@ -68,6 +71,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
   const points = {{ points | tojson }};
+  const target = {{ target | tojson }};
   const css = getComputedStyle(document.documentElement);
   const line = css.getPropertyValue("--line").trim();
   const grid = css.getPropertyValue("--grid").trim();
@@ -83,7 +87,13 @@
         borderWidth: 2,
         tension: 0.2,
         pointRadius: points.length > 60 ? 0 : 3,
-      }],
+      }].concat(target === null ? [] : [{
+        data: [{ x: points[0].x, y: target }, { x: points[points.length - 1].x, y: target }],
+        borderColor: muted,
+        borderWidth: 1,
+        borderDash: [6, 4],
+        pointRadius: 0,
+      }]),
     },
     options: {
       maintainAspectRatio: false,

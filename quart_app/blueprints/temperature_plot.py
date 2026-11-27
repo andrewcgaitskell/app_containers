@@ -53,11 +53,12 @@ def extract_temperature(payload):
     return None
 
 
-@bp.route("/temperature/<device>")
-async def temperature(device):
-    hours = max(1, min(request.args.get("hours", 24, type=int), 720))
-    topic = f"display/device/{device}"
+def get_hours():
+    return max(1, min(request.args.get("hours", 24, type=int), 720))
 
+
+async def render_temperature(topic, title, endpoint, endpoint_args, hours, target=None):
+    """Chart the temperature readings stored for one MQTT topic."""
     pool = await get_pool()
     rows = await pool.fetch(
         """
@@ -87,10 +88,45 @@ async def temperature(device):
 
     return await render_template(
         "temperature.html",
-        device=device,
+        device=title,
+        endpoint=endpoint,
+        endpoint_args=endpoint_args,
+        target=target,
         hours=hours,
         points=points,
         latest=points[-1] if points else None,
+    )
+
+
+@bp.route("/temperature/<device>")
+async def temperature(device):
+    """Shelly devices, published to display/device/<device> by Home Assistant."""
+    return await render_temperature(
+        topic=f"display/device/{device}",
+        title=device,
+        endpoint="temperature.temperature",
+        endpoint_args={"device": device},
+        hours=get_hours(),
+    )
+
+
+@bp.route("/temperature/zigbee/<path:name>")
+async def zigbee_temperature(name):
+    """Zigbee2MQTT devices, published to zigbee2mqtt/<friendly name>.
+
+    Optional ?target=22 draws a dashed setpoint line.
+    """
+    target = request.args.get("target", type=float)
+    args = {"name": name}
+    if target is not None:
+        args["target"] = target
+    return await render_temperature(
+        topic=f"zigbee2mqtt/{name}",
+        title=name,
+        endpoint="temperature.zigbee_temperature",
+        endpoint_args=args,
+        hours=get_hours(),
+        target=target,
     )
 
 
@@ -98,3 +134,4 @@ async def temperature(device):
 #   from temperature_plot import bp as temperature_bp
 #   app.register_blueprint(temperature_bp)
 # Then open /temperature/shellyhtg3_black?hours=24
+# or /temperature/zigbee/Fermenting%20House%20Thermometer?target=22

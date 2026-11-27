@@ -89,6 +89,51 @@ async def test_temperature_page_renders_empty(client, pool):
     assert "No temperature readings" in await resp.get_data(as_text=True)
 
 
+async def test_zigbee_temperature_queries_z2m_topic(client, pool, capture_render):
+    ctx = capture_render(temperature_plot)
+    pool.rows = [{"payload": {"temperature": 21.9, "battery": 100}, "received_at": at(0)}]
+
+    resp = await client.get("/temperature/zigbee/Fermenting%20House%20Thermometer?hours=6&target=22")
+
+    assert resp.status_code == 200
+    assert pool.calls[0][1] == ("zigbee2mqtt/Fermenting House Thermometer", 6)
+    assert ctx["device"] == "Fermenting House Thermometer"
+    assert ctx["target"] == 22.0
+    assert ctx["points"] == [{"x": at(0).isoformat(), "y": 21.9}]
+
+
+async def test_zigbee_temperature_without_target(client, pool, capture_render):
+    ctx = capture_render(temperature_plot)
+
+    await client.get("/temperature/zigbee/Probe?target=abc")
+
+    assert ctx["target"] is None
+    assert ctx["endpoint_args"] == {"name": "Probe"}
+
+
+async def test_zigbee_temperature_page_renders_target_and_range_links(client, pool):
+    pool.rows = [{"payload": {"temperature": 21.9}, "received_at": at(0)}]
+
+    resp = await client.get("/temperature/zigbee/Fermenting%20House%20Thermometer?target=22")
+    html = await resp.get_data(as_text=True)
+
+    assert "21.9 °C" in html
+    assert "Target 22.0 °C" in html
+    assert "const target = 22.0;" in html
+    # Range links keep the device and the target line.
+    assert "/temperature/zigbee/Fermenting%20House%20Thermometer?hours=168&amp;target=22.0" in html
+
+
+async def test_shelly_page_has_no_target_line(client, pool):
+    pool.rows = [{"payload": {"temperature": 20.0}, "received_at": at(0)}]
+
+    html = await (await client.get("/temperature/shelly1")).get_data(as_text=True)
+
+    assert "const target = null;" in html
+    assert "Target" not in html
+    assert "/temperature/shelly1?hours=168" in html
+
+
 # ------------------------------------------------------------------- presence
 
 async def test_presence_groups_events_by_device(client, pool, capture_render):
