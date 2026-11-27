@@ -31,6 +31,18 @@ description: Add or change a chart page in quart_app (temperature or other senso
     a dashed setpoint line.
 - `quart_app/blueprints/presence_plot.py` + `templates/presence.html`:
   multi-device event lanes (`occupancy = true`).
+- `quart_app/blueprints/home.py` + `templates/home.html`: landing page at
+  `/`. It finds temperature devices automatically (last 24 h) and links to
+  their charts. `TARGETS` maps a topic to a setpoint line. Add a link here
+  for any new non-temperature chart.
+
+## Access
+- The app listens on the LAN (`QUART_HOST=0.0.0.0` in compose) with no
+  login. Chart pages must stay read-only.
+- Anything that changes state (e.g. `/api/light/...` in `hass.py`) must be
+  Pi-only: put it in `hass_bp` or use the same `before_request` check
+  (`request.remote_addr` in `LOCAL_ADDRS`), and test a LAN client gets 403
+  (`scope_base={"client": ("192.168.1.50", 50000)}`).
 
 ## Adding a chart
 1. Prefer a new route that reuses an existing helper and template over a
@@ -42,6 +54,7 @@ description: Add or change a chart page in quart_app (temperature or other senso
    - Clamp `hours` to 1..720 (`get_hours()` in `temperature_plot.py`).
    - Thin long series like `render_temperature` does.
    - Register it in `quart_app/main.py` next to the other blueprints.
+   - Link it from the landing page (`home.html`).
 3. Templates: plain HTML + Chart.js 4 with the date-fns adapter from the
    CDN. Keep the CSS variables (`--bg --fg --muted --line --grid`) with the
    dark-mode block, the range nav (6 h, 24 h, 7 d, 30 d) built with

@@ -4,9 +4,19 @@ import json
 import logging
 from typing import Tuple, Any
 import aiohttp
-from quart import Blueprint, current_app, jsonify, request, Response
+from quart import Blueprint, abort, current_app, jsonify, request, Response
 
 hass_bp = Blueprint("hass", __name__)
+
+# The app is reachable from the LAN for the charts, but light control has no
+# login, so it only answers requests made on the Pi itself.
+LOCAL_ADDRS = {"127.0.0.1", "::1"}
+
+
+@hass_bp.before_request
+async def local_only():
+    if request.remote_addr not in LOCAL_ADDRS:
+        abort(403)
 
 # Read defaults from environment; blueprint will use current_app.http_session for requests.
 HASS_URL = os.environ.get("HASS_URL", "http://pi5ha.local:8123")

@@ -27,8 +27,8 @@ def fake_connect(conns, calls):
     return _connect
 
 
-async def test_index(client):
-    resp = await client.get("/")
+async def test_status(client):
+    resp = await client.get("/status")
     assert resp.status_code == 200
     assert await resp.get_json() == {"status": "MQTT listener running"}
 

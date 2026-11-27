@@ -53,6 +53,12 @@ History before November 2026 is in `git log`.
 - Claude Code skill `.claude/skills/quart-chart/SKILL.md`: how charts in
   `quart_app` get their data, the existing routes and template to reuse,
   and the testing and changelog steps for adding a new chart.
+- `quart_app` landing page at `/`: lists every Zigbee2MQTT or Shelly
+  device that reported a temperature in the last 24 hours, with its latest
+  value and a link to its chart, plus a link to `/presence`. Setpoint lines
+  for linked charts come from `TARGETS` in `quart_app/blueprints/home.py`
+  (Fermenting House Thermometer: 22 °C). Tests in `tests/quart_app/test_home.py`.
+  The temperature and presence chart pages link back to it ("← All charts").
 - Off-site backup: `backup/offsite-backup.sh` packs the data needed to
   rebuild the Pi (HA config, Zigbee2MQTT, OTBR, Matter, ESPHome,
   `compose/.env`, Blockly programs, Jupyter, latest Postgres dump),
@@ -62,6 +68,13 @@ History before November 2026 is in `git log`.
   Docker test runner now mounts `backup/` (re-run its `install` line).
 
 ### Changed
+- `quart_app` is now reachable from the LAN on port 5000: `main.py` binds to
+  `QUART_HOST` (default `127.0.0.1`), set to `0.0.0.0` for the `quart_app`
+  service in `compose/ha_compose.yml`. Light control (`/api/light/...`,
+  `/ui/light/...`) has no login, so it now returns 403 unless the request
+  comes from the Pi itself (`127.0.0.1` / `::1`). Needs a container
+  recreate (`docker compose up -d quart_app`) to pick up the new variable.
+- `quart_app`: the JSON status response moved from `/` to `/status`.
 - Health scripts: log, state and venv paths can be overridden by
   environment variables (`LOGFILE`, `STATE_DIR`, `MAX_LOG_SIZE`, `VENV_DIR`,
   `STATE_FILE`) for testing. Defaults are unchanged.

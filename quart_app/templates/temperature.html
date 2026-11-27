@@ -38,10 +38,14 @@
   nav a:focus-visible { outline: 2px solid var(--line); outline-offset: 3px; }
   .chart { position: relative; height: 55vh; min-height: 280px; }
   .empty { color: var(--muted); }
+  .back { display: inline-block; margin-bottom: .75rem; color: var(--muted); text-decoration: none; font-size: .9rem; }
+  .back:hover { color: var(--fg); }
+  .back:focus-visible { outline: 2px solid var(--line); outline-offset: 3px; }
 </style>
 </head>
 <body>
 <main>
+  <a class="back" href="{{ url_for('home.index') }}">← All charts</a>
   <h1>{{ device }}</h1>
 
   {% if latest %}

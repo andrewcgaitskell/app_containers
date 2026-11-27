@@ -13,6 +13,8 @@ from blueprints.temperature_plot import bp as temperature_bp
 
 from blueprints.presence_plot import bp as presence_bp
 
+from blueprints.home import bp as home_bp
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,  # Or DEBUG for more verbosity
@@ -25,6 +27,7 @@ app = Quart(__name__,template_folder="templates")
 app.register_blueprint(hass_bp)
 app.register_blueprint(temperature_bp)
 app.register_blueprint(presence_bp)
+app.register_blueprint(home_bp)
 
 # DB Connection
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
@@ -143,11 +146,12 @@ async def cleanup():
         app.http_session = None
         logging.info("HTTP session closed.")
 
-@app.route("/")
-async def index():
+@app.route("/status")
+async def status():
     return jsonify({"status": "MQTT listener running"})
 
 if __name__ == "__main__":
     # No HASS_TOKEN check here; blueprint will raise a helpful error if missing when called.
-    app.run(host="127.0.0.1", port=5000)
+    # QUART_HOST=0.0.0.0 (set in compose) opens the charts to the LAN.
+    app.run(host=os.environ.get("QUART_HOST", "127.0.0.1"), port=5000)
 

@@ -6,7 +6,13 @@ from conftest import FakeSession
 
 
 @pytest.fixture
-def ha(app, monkeypatch):
+def on_pi(monkeypatch):
+    """Quart's test client reports "<local>" as the client address; treat it as the Pi."""
+    monkeypatch.setattr(hass, "LOCAL_ADDRS", hass.LOCAL_ADDRS | {"<local>"})
+
+
+@pytest.fixture
+def ha(app, monkeypatch, on_pi):
     """Configure a fake Home Assistant: placeholder token, fake URL, fake session."""
     monkeypatch.setattr(hass, "HASS_TOKEN", "test-token")
     monkeypatch.setattr(hass, "HASS_URL", "http://ha.test:8123/")
@@ -66,7 +72,7 @@ async def test_missing_token_returns_500_without_calling_ha(client, ha, monkeypa
     assert ha.requests == []
 
 
-async def test_ha_connection_error_returns_500(client, app, monkeypatch):
+async def test_ha_connection_error_returns_500(client, app, monkeypatch, on_pi):
     monkeypatch.setattr(hass, "HASS_TOKEN", "test-token")
     app.http_session = FakeSession(error=aiohttp.ClientError("unreachable"))
 
@@ -106,7 +112,7 @@ async def test_get_state_passes_through_errors(client, ha):
     assert await resp.get_data(as_text=True) == '{"message": "Entity not found."}'
 
 
-async def test_light_ui_renders_entity(client):
+async def test_light_ui_renders_entity(client, on_pi):
     resp = await client.get("/ui/light/light.kitchen")
 
     assert resp.status_code == 200
@@ -133,7 +139,7 @@ async def test_light_ui_renders_entity(client):
         ),
     ],
 )
-async def test_light_ui_escapes_entity_id(client, path, raw, escaped_html, escaped_js):
+async def test_light_ui_escapes_entity_id(client, on_pi, path, raw, escaped_html, escaped_js):
     resp = await client.get(f"/ui/light/{path}")
     page = await resp.get_data(as_text=True)
 
@@ -141,3 +147,37 @@ async def test_light_ui_escapes_entity_id(client, path, raw, escaped_html, escap
     assert raw not in page
     assert escaped_html in page
     assert escaped_js in page
+
+
+LAN = {"client": ("192.168.1.50", 50000)}
+
+
+@pytest.mark.parametrize(
+    "method, path",
+    [
+        ("POST", "/api/light/light.kitchen/set"),
+        ("POST", "/api/light/light.kitchen/toggle"),
+        ("GET", "/api/light/light.kitchen/get_state"),
+        ("GET", "/ui/light/light.kitchen"),
+    ],
+)
+async def test_light_routes_refuse_lan_clients(client, ha, method, path):
+    resp = await client.open(path, method=method, json={"state": "on"}, scope_base=LAN)
+
+    assert resp.status_code == 403
+    assert ha.requests == []
+
+
+async def test_test_client_address_is_not_trusted_by_default(client):
+    assert "<local>" not in hass.LOCAL_ADDRS
+    resp = await client.get("/api/light/light.kitchen/get_state")
+
+    assert resp.status_code == 403
+
+
+async def test_light_routes_allow_ipv6_localhost(client, ha):
+    resp = await client.get(
+        "/api/light/light.kitchen/get_state", scope_base={"client": ("::1", 50000)}
+    )
+
+    assert resp.status_code == 200

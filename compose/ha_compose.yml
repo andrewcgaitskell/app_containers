@@ -139,6 +139,7 @@ services:
       HASS_TOKEN: ${HASS_TOKEN}
       HASS_URL: ${HASS_URL}
       MQTT_TOPIC: "#"  # subscribe to all topics
+      QUART_HOST: 0.0.0.0  # charts on the LAN; light API stays Pi-only
     volumes:
       - /opt/data/app_containers/quart_app:/app
     network_mode: host

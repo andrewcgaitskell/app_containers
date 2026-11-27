@@ -134,6 +134,13 @@ async def test_shelly_page_has_no_target_line(client, pool):
     assert "/temperature/shelly1?hours=168" in html
 
 
+@pytest.mark.parametrize("path", ["/temperature/shelly1", "/temperature/zigbee/Probe", "/presence"])
+async def test_chart_pages_link_back_to_landing_page(client, pool, path):
+    html = await (await client.get(path)).get_data(as_text=True)
+
+    assert '<a class="back" href="/">← All charts</a>' in html
+
+
 # ------------------------------------------------------------------- presence
 
 async def test_presence_groups_events_by_device(client, pool, capture_render):

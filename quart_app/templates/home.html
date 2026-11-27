@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charts</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --fg: #1d2421;
+    --muted: #66706b;
+    --line: #c9422d;
+    --grid: #dfe3e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161a18;
+      --fg: #e8ece9;
+      --muted: #98a39d;
+      --line: #ff7a5c;
+      --grid: #2a312d;
+    }
+  }
+  body {
+    margin: 0;
+    padding: 1.5rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 56rem; margin: 0 auto; }
+  h1 { font-size: 1.4rem; font-weight: 600; margin: 0 0 1.25rem; }
+  h2 { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+       color: var(--muted); margin: 1.75rem 0 .5rem; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { border-top: 1px solid var(--grid); }
+  li:last-child { border-bottom: 1px solid var(--grid); }
+  a.row { display: flex; align-items: baseline; gap: 1rem; padding: .75rem .25rem;
+          color: inherit; text-decoration: none; }
+  a.row:hover .name { color: var(--line); }
+  a.row:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+  .name { flex: 1; font-weight: 500; }
+  .meta { color: var(--muted); font-size: .85rem; }
+  .value { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 5rem; text-align: right; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Charts</h1>
+
+  <h2>Temperature</h2>
+  {% if sensors %}
+    <ul>
+      {% for s in sensors %}
+        <li>
+          <a class="row" href="{{ s.url }}">
+            <span class="name">{{ s.name }}</span>
+            <span class="meta">
+              {{ s.source }}{% if s.target is not none %} · target {{ "%.1f"|format(s.target) }} °C{% endif %}
+              · <time data-ts="{{ s.seen }}"></time>
+            </span>
+            <span class="value">{% if s.value is not none %}{{ "%.1f"|format(s.value) }} °C{% endif %}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No device has reported a temperature in the last 24 hours.</p>
+  {% endif %}
+
+  <h2>Presence</h2>
+  <ul>
+    <li>
+      <a class="row" href="{{ url_for('presence.presence_events') }}">
+        <span class="name">Occupancy events</span>
+        <span class="meta">All presence sensors</span>
+      </a>
+    </li>
+  </ul>
+</main>
+<script>
+  for (const t of document.querySelectorAll("time[data-ts]")) {
+    t.textContent = new Date(t.dataset.ts).toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+  }
+</script>
+</body>
+</html>
