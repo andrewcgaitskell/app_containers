@@ -35,6 +35,14 @@ History before November 2026 is in `git log`.
   (SONOFF TRVZB) to `off` at 23:00 and back to `heat` at 07:00, so the
   valve motor doesn't buzz overnight. Backup of the previous file is
   `automations.yaml.bak` in the same directory.
+- Home Assistant automation "Fermenting House heater"
+  (`id: '1796256000002'`) in `/opt/data/home_assistant/config/automations.yaml`
+  (outside this repository): holds the fermenting house at 22 °C by
+  switching the 5 W heater pad plug (`switch.fermenting_house_heater_plug`) on
+  below 21.7 °C and off above 22.3 °C, using the SONOFF probe
+  (`sensor.fermenting_house_thermometer_temperature`). The heater is switched off
+  if the probe is unavailable or silent for 2 hours. Re-checks every 5
+  minutes and on HA start / automation reload.
 - Off-site backup: `backup/offsite-backup.sh` packs the data needed to
   rebuild the Pi (HA config, Zigbee2MQTT, OTBR, Matter, ESPHome,
   `compose/.env`, Blockly programs, Jupyter, latest Postgres dump),
