@@ -1,5 +1,5 @@
-Test run:   20261128T163903Z
-Commit:     257b5ef (+uncommitted changes)
+Test run:   20261128T173935Z
+Commit:     2a6e9bf
 Image:      app-containers-tests:latest (python:3.11-slim)
 Command:    pytest -v -rA  (in container, no network)
 ----------------------------------------------------------------
@@ -14,18 +14,18 @@ plugins: asyncio-1.5.0
 asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
 collecting ... collected 179 items
 
-tests/backup/test_offsite_backup.py::test_script_syntax FAILED           [  0%]
-tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise FAILED [  1%]
-tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file FAILED [  1%]
-tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload FAILED [  2%]
-tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip FAILED [  2%]
-tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue FAILED [  3%]
-tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up FAILED [  3%]
-tests/backup/test_offsite_backup.py::test_fails_without_passphrase FAILED [  4%]
+tests/backup/test_offsite_backup.py::test_script_syntax PASSED           [  0%]
+tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise PASSED [  1%]
+tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file PASSED [  1%]
+tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload PASSED [  2%]
+tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip PASSED [  2%]
+tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue PASSED [  3%]
+tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up PASSED [  3%]
+tests/backup/test_offsite_backup.py::test_fails_without_passphrase PASSED [  4%]
 tests/backup/test_offsite_backup.py::test_rejects_bad_keep PASSED        [  5%]
-tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload FAILED [  5%]
-tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning FAILED [  6%]
-tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files FAILED [  6%]
+tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload PASSED [  5%]
+tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning PASSED [  6%]
+tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files PASSED [  6%]
 tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh] PASSED [  7%]
 tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh] PASSED [  7%]
 tests/health/test_health_config.py::test_shell_syntax[net-speedtest-daily.sh] PASSED [  8%]
@@ -194,233 +194,6 @@ tests/quart_app/test_plots.py::test_presence_page_renders_empty PASSED   [ 98%]
 tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.temperature_plot] PASSED [ 99%]
 tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.presence_plot] PASSED [100%]
 
-=================================== FAILURES ===================================
-______________________________ test_script_syntax ______________________________
-
-    def test_script_syntax():
->       subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
-
-tests/backup/test_offsite_backup.py:129: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-input = None, capture_output = False, timeout = None, check = True
-popenargs = (['bash', '-n', '/work/backup/offsite-backup.sh'],), kwargs = {}
-
-    def run(*popenargs,
-            input=None, capture_output=False, timeout=None, check=False, **kwargs):
-        """Run command with arguments and return a CompletedProcess instance.
-    
-        The returned instance will have attributes args, returncode, stdout and
-        stderr. By default, stdout and stderr are not captured, and those attributes
-        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
-        or pass capture_output=True to capture both.
-    
-        If check is True and the exit code was non-zero, it raises a
-        CalledProcessError. The CalledProcessError object will have the return code
-        in the returncode attribute, and output & stderr attributes if those streams
-        were captured.
-    
-        If timeout is given, and the process takes too long, a TimeoutExpired
-        exception will be raised.
-    
-        There is an optional argument "input", allowing you to
-        pass bytes or a string to the subprocess's stdin.  If you use this argument
-        you may not also use the Popen constructor's "stdin" argument, as
-        it will be used internally.
-    
-        By default, all communication is in bytes, and therefore any "input" should
-        be bytes, and the stdout and stderr will be bytes. If in text mode, any
-        "input" should be a string, and stdout and stderr will be strings decoded
-        according to locale encoding, or by "encoding" if set. Text mode is
-        triggered by setting any of text, encoding, errors or universal_newlines.
-    
-        The other arguments are the same as for the Popen constructor.
-        """
-        if input is not None:
-            if kwargs.get('stdin') is not None:
-                raise ValueError('stdin and input arguments may not both be used.')
-            kwargs['stdin'] = PIPE
-    
-        if capture_output:
-            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
-                raise ValueError('stdout and stderr arguments may not be used '
-                                 'with capture_output.')
-            kwargs['stdout'] = PIPE
-            kwargs['stderr'] = PIPE
-    
-        with Popen(*popenargs, **kwargs) as process:
-            try:
-                stdout, stderr = process.communicate(input, timeout=timeout)
-            except TimeoutExpired as exc:
-                process.kill()
-                if _mswindows:
-                    # Windows accumulates the output in a single blocking
-                    # read() call run on child threads, with the timeout
-                    # being done in a join() on those threads.  communicate()
-                    # _after_ kill() is required to collect that and add it
-                    # to the exception.
-                    exc.stdout, exc.stderr = process.communicate()
-                else:
-                    # POSIX _communicate already populated the output so
-                    # far into the TimeoutExpired exception.
-                    process.wait()
-                raise
-            except:  # Including KeyboardInterrupt, communicate handled that.
-                process.kill()
-                # We don't call process.wait() as .__exit__ does that for us.
-                raise
-            retcode = process.poll()
-            if check and retcode:
->               raise CalledProcessError(retcode, process.args,
-                                         output=stdout, stderr=stderr)
-E               subprocess.CalledProcessError: Command '['bash', '-n', '/work/backup/offsite-backup.sh']' returned non-zero exit status 127.
-
-/usr/local/lib/python3.11/subprocess.py:571: CalledProcessError
------------------------------ Captured stderr call -----------------------------
-bash: /work/backup/offsite-backup.sh: No such file or directory
-_________________ test_backs_up_critical_data_and_skips_noise __________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff129de110>
-
-    def test_backs_up_critical_data_and_skips_noise(sb):
-        sb.populate()
-        result = sb.run()
->       assert result.returncode == 0, result.stdout + result.stderr
-E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
-E         
-E       assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-
-tests/backup/test_offsite_backup.py:135: AssertionError
-______________________ test_encrypts_with_passphrase_file ______________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff124b05d0>
-
-    def test_encrypts_with_passphrase_file(sb):
-        sb.populate()
->       assert sb.run().returncode == 0
-E       AssertionError: assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
-E        +      where run = <test_offsite_backup.Sandbox object at 0x7fff124b05d0>.run
-
-tests/backup/test_offsite_backup.py:171: AssertionError
-___________________ test_local_archive_removed_after_upload ____________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff12a63b10>
-
-    def test_local_archive_removed_after_upload(sb):
-        sb.populate()
->       assert sb.run().returncode == 0
-E       AssertionError: assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
-E        +      where run = <test_offsite_backup.Sandbox object at 0x7fff12a63b10>.run
-
-tests/backup/test_offsite_backup.py:180: AssertionError
-___________________ test_falls_back_to_sql_dump_when_no_zip ____________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff12434cd0>
-
-    def test_falls_back_to_sql_dump_when_no_zip(sb):
-        sb.file("home_assistant/config/configuration.yaml")
-        sb.file("postgres_data/backups/data_dump_20261125_0601.sql")
->       assert sb.run().returncode == 0
-E       AssertionError: assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
-E        +      where run = <test_offsite_backup.Sandbox object at 0x7fff12434cd0>.run
-
-tests/backup/test_offsite_backup.py:187: AssertionError
-____________________ test_missing_folders_warn_but_continue ____________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff124d8810>
-
-    def test_missing_folders_warn_but_continue(sb):
-        sb.file("home_assistant/config/configuration.yaml")
-        result = sb.run()
->       assert result.returncode == 0
-E       AssertionError: assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-
-tests/backup/test_offsite_backup.py:194: AssertionError
-______________________ test_fails_when_nothing_to_back_up ______________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff1248bb50>
-
-    def test_fails_when_nothing_to_back_up(sb):
-        result = sb.run()
-        assert result.returncode != 0
->       assert "nothing to back up" in result.stdout
-E       AssertionError: assert 'nothing to back up' in ''
-E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
-
-tests/backup/test_offsite_backup.py:203: AssertionError
-________________________ test_fails_without_passphrase _________________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff124cb050>
-
-    def test_fails_without_passphrase(sb):
-        sb.populate()
-        sb.passphrase.write_text("")
-        result = sb.run()
-        assert result.returncode != 0
->       assert "passphrase file" in result.stdout
-E       AssertionError: assert 'passphrase file' in ''
-E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
-
-tests/backup/test_offsite_backup.py:212: AssertionError
-_____________________ test_gpg_failure_stops_before_upload _____________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff12476f90>
-
-    def test_gpg_failure_stops_before_upload(sb):
-        sb.populate()
-        result = sb.run(GPG_EXIT=2)
-        assert result.returncode != 0
->       assert "encryption failed" in result.stdout
-E       AssertionError: assert 'encryption failed' in ''
-E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
-
-tests/backup/test_offsite_backup.py:227: AssertionError
-______________________ test_upload_failure_skips_pruning _______________________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff124b0290>
-
-    def test_upload_failure_skips_pruning(sb):
-        sb.populate()
-        folder = sb.drive / "pi-backups"
-        folder.mkdir()
-        for day in range(1, 6):
-            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
-        result = sb.run(RCLONE_COPY_EXIT=1, KEEP=2)
-        assert result.returncode != 0
->       assert "upload failed" in result.stdout
-E       AssertionError: assert 'upload failed' in ''
-E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
-
-tests/backup/test_offsite_backup.py:239: AssertionError
-______________ test_prunes_to_keep_newest_and_leaves_other_files _______________
-
-sb = <test_offsite_backup.Sandbox object at 0x7fff124d9cd0>
-
-    def test_prunes_to_keep_newest_and_leaves_other_files(sb):
-        sb.populate()
-        folder = sb.drive / "pi-backups"
-        folder.mkdir()
-        for day in range(1, 6):
-            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
-        (folder / "notes.txt").write_text("keep me")
-        (folder / "home-backup-manual.tar.gz.gpg").write_text("keep me")
-    
-        result = sb.run(KEEP=3)
->       assert result.returncode == 0, result.stdout + result.stderr
-E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
-E         
-E       assert 127 == 0
-E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
-
-tests/backup/test_offsite_backup.py:254: AssertionError
 ==================================== PASSES ====================================
 _______________________ test_bad_arguments_exit_2[args0] _______________________
 ----------------------------- Captured stderr call -----------------------------
@@ -468,9 +241,20 @@ ERROR    root:main.py:108 Error writing message to DB: connection refused
 ____________ test_mqtt_listener_decodes_json_and_falls_back_to_raw _____________
 ------------------------------ Captured log call -------------------------------
 WARNING  root:main.py:123 Failed to decode JSON; storing raw payload.
--------------- generated xml file: /results/20261128T163903Z.xml ---------------
+-------------- generated xml file: /results/20261128T173935Z.xml ---------------
 =========================== short test summary info ============================
+PASSED tests/backup/test_offsite_backup.py::test_script_syntax
+PASSED tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise
+PASSED tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file
+PASSED tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload
+PASSED tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip
+PASSED tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue
+PASSED tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up
+PASSED tests/backup/test_offsite_backup.py::test_fails_without_passphrase
 PASSED tests/backup/test_offsite_backup.py::test_rejects_bad_keep
+PASSED tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload
+PASSED tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning
+PASSED tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files
 PASSED tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh]
 PASSED tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh]
 PASSED tests/health/test_health_config.py::test_shell_syntax[net-speedtest-daily.sh]
@@ -638,16 +422,5 @@ PASSED tests/quart_app/test_plots.py::test_presence_page_renders
 PASSED tests/quart_app/test_plots.py::test_presence_page_renders_empty
 PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.temperature_plot]
 PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.presence_plot]
-FAILED tests/backup/test_offsite_backup.py::test_script_syntax - subprocess.C...
-FAILED tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise
-FAILED tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file
-FAILED tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload
-FAILED tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip
-FAILED tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue
-FAILED tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up
-FAILED tests/backup/test_offsite_backup.py::test_fails_without_passphrase - A...
-FAILED tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload
-FAILED tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning
-FAILED tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files
-======================== 11 failed, 168 passed in 4.04s ========================
-RESULT: FAILED (exit 1)
+============================= 179 passed in 4.03s ==============================
+RESULT: PASSED

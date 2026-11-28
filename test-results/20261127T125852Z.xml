@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="27" skipped="0" tests="146" time="3.913" timestamp="2026-11-27T12:58:53.873033+00:00" hostname="eb60f25963c6"><testcase classname="tests.backup.test_offsite_backup" name="test_script_syntax" time="0.003"><failure message="subprocess.CalledProcessError: Command '['bash', '-n', '/work/backup/offsite-backup.sh']' returned non-zero exit status 127.">def test_script_syntax():
+&gt;       subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
+
+tests/backup/test_offsite_backup.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['bash', '-n', '/work/backup/offsite-backup.sh'],), kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output &amp; stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+&gt;               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['bash', '-n', '/work/backup/offsite-backup.sh']' returned non-zero exit status 127.
+
+/usr/local/lib/python3.11/subprocess.py:571: CalledProcessError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_backs_up_critical_data_and_skips_noise" time="0.006"><failure message="AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory&#10;  &#10;assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeecab6410&gt;
+
+    def test_backs_up_critical_data_and_skips_noise(sb):
+        sb.populate()
+        result = sb.run()
+&gt;       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
+E         
+E       assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:135: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_encrypts_with_passphrase_file" time="0.004"><failure message="AssertionError: assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode&#10; +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()&#10; +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeec410390&gt;.run">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeec410390&gt;
+
+    def test_encrypts_with_passphrase_file(sb):
+        sb.populate()
+&gt;       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeec410390&gt;.run
+
+tests/backup/test_offsite_backup.py:171: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_local_archive_removed_after_upload" time="0.004"><failure message="AssertionError: assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode&#10; +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()&#10; +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeecaa8450&gt;.run">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeecaa8450&gt;
+
+    def test_local_archive_removed_after_upload(sb):
+        sb.populate()
+&gt;       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeecaa8450&gt;.run
+
+tests/backup/test_offsite_backup.py:180: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_falls_back_to_sql_dump_when_no_zip" time="0.003"><failure message="AssertionError: assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode&#10; +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()&#10; +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeeca4ab10&gt;.run">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeeca4ab10&gt;
+
+    def test_falls_back_to_sql_dump_when_no_zip(sb):
+        sb.file("home_assistant/config/configuration.yaml")
+        sb.file("postgres_data/backups/data_dump_20261125_0601.sql")
+&gt;       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = &lt;test_offsite_backup.Sandbox object at 0x7ffeeca4ab10&gt;.run
+
+tests/backup/test_offsite_backup.py:187: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_missing_folders_warn_but_continue" time="0.004"><failure message="AssertionError: assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeec4a7650&gt;
+
+    def test_missing_folders_warn_but_continue(sb):
+        sb.file("home_assistant/config/configuration.yaml")
+        result = sb.run()
+&gt;       assert result.returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:194: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_fails_when_nothing_to_back_up" time="0.003"><failure message="AssertionError: assert 'nothing to back up' in ''&#10; +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeec497c10&gt;
+
+    def test_fails_when_nothing_to_back_up(sb):
+        result = sb.run()
+        assert result.returncode != 0
+&gt;       assert "nothing to back up" in result.stdout
+E       AssertionError: assert 'nothing to back up' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:203: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_fails_without_passphrase" time="0.005"><failure message="AssertionError: assert 'passphrase file' in ''&#10; +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeec45b850&gt;
+
+    def test_fails_without_passphrase(sb):
+        sb.populate()
+        sb.passphrase.write_text("")
+        result = sb.run()
+        assert result.returncode != 0
+&gt;       assert "passphrase file" in result.stdout
+E       AssertionError: assert 'passphrase file' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:212: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_rejects_bad_keep" time="0.004" /><testcase classname="tests.backup.test_offsite_backup" name="test_gpg_failure_stops_before_upload" time="0.004"><failure message="AssertionError: assert 'encryption failed' in ''&#10; +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeec411510&gt;
+
+    def test_gpg_failure_stops_before_upload(sb):
+        sb.populate()
+        result = sb.run(GPG_EXIT=2)
+        assert result.returncode != 0
+&gt;       assert "encryption failed" in result.stdout
+E       AssertionError: assert 'encryption failed' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:227: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_upload_failure_skips_pruning" time="0.004"><failure message="AssertionError: assert 'upload failed' in ''&#10; +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeecaa9290&gt;
+
+    def test_upload_failure_skips_pruning(sb):
+        sb.populate()
+        folder = sb.drive / "pi-backups"
+        folder.mkdir()
+        for day in range(1, 6):
+            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
+        result = sb.run(RCLONE_COPY_EXIT=1, KEEP=2)
+        assert result.returncode != 0
+&gt;       assert "upload failed" in result.stdout
+E       AssertionError: assert 'upload failed' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:239: AssertionError</failure></testcase><testcase classname="tests.backup.test_offsite_backup" name="test_prunes_to_keep_newest_and_leaves_other_files" time="0.005"><failure message="AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory&#10;  &#10;assert 127 == 0&#10; +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode">sb = &lt;test_offsite_backup.Sandbox object at 0x7ffeeca4b7d0&gt;
+
+    def test_prunes_to_keep_newest_and_leaves_other_files(sb):
+        sb.populate()
+        folder = sb.drive / "pi-backups"
+        folder.mkdir()
+        for day in range(1, 6):
+            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
+        (folder / "notes.txt").write_text("keep me")
+        (folder / "home-backup-manual.tar.gz.gpg").write_text("keep me")
+    
+        result = sb.run(KEEP=3)
+&gt;       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
+E         
+E       assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:254: AssertionError</failure></testcase><testcase classname="tests.health.test_health_config" name="test_shell_syntax[ha-health-monitor.sh]" time="0.003" /><testcase classname="tests.health.test_health_config" name="test_shell_syntax[net-connectivity-check.sh]" time="0.003" /><testcase classname="tests.health.test_health_config" name="test_shell_syntax[net-speedtest-daily.sh]" time="0.003" /><testcase classname="tests.health.test_health_config" name="test_shell_syntax[pg-dump-trigger.sh]" time="0.003" /><testcase classname="tests.health.test_health_config" name="test_shell_syntax[rebuild.sh]" time="0.002" /><testcase classname="tests.health.test_health_config" name="test_dockerfile_copy_sources_exist" time="0.001" /><testcase classname="tests.health.test_health_config" name="test_mqtt_helper_installed_under_name_scripts_expect" time="0.000" /><testcase classname="tests.health.test_health_config" name="test_crontab_installed_only_as_system_crontab" time="0.001" /><testcase classname="tests.health.test_health_config" name="test_crontab_ends_with_newline" time="0.000" /><testcase classname="tests.health.test_health_config" name="test_crontab_entries_are_well_formed_and_point_at_installed_scripts" time="0.000" /><testcase classname="tests.health.test_health_config" name="test_every_installed_script_is_scheduled" time="0.000" /><testcase classname="tests.health.test_health_config" name="test_speedtest_runs_once_daily" time="0.000" /><testcase classname="tests.health.test_health_scripts" name="test_ha_healthy_resets_count_and_does_not_restart" time="0.013" /><testcase classname="tests.health.test_health_scripts" name="test_ha_first_failure_counts_but_does_not_restart" time="0.013" /><testcase classname="tests.health.test_health_scripts" name="test_ha_third_failure_restarts_and_starts_cooldown" time="0.016" /><testcase classname="tests.health.test_health_scripts" name="test_ha_skips_check_during_cooldown" time="0.013" /><testcase classname="tests.health.test_health_scripts" name="test_ha_expired_cooldown_is_cleared_and_check_runs" time="0.015" /><testcase classname="tests.health.test_health_scripts" name="test_ha_recovery_after_failures_is_logged" time="0.012" /><testcase classname="tests.health.test_health_scripts" name="test_ha_corrupt_fail_count_treated_as_zero" time="0.012" /><testcase classname="tests.health.test_health_scripts" name="test_ha_trims_oversized_log" time="0.017" /><testcase classname="tests.health.test_health_scripts" name="test_pg_dump_trigger_success" time="0.012" /><testcase classname="tests.health.test_health_scripts" name="test_pg_dump_trigger_failure_is_logged[500-0]" time="0.014" /><testcase classname="tests.health.test_health_scripts" name="test_pg_dump_trigger_failure_is_logged[000-7]" time="0.013" /><testcase classname="tests.health.test_health_scripts" name="test_net_all_up_publishes_retained_state_only" time="0.125" /><testcase classname="tests.health.test_health_scripts" name="test_net_partial_failure_is_still_up" time="0.130" /><testcase classname="tests.health.test_health_scripts" name="test_net_all_down_publishes_anomaly" time="0.229" /><testcase classname="tests.health.test_health_scripts" name="test_net_restored_after_down_publishes_anomaly" time="0.241" /><testcase classname="tests.health.test_health_scripts" name="test_net_missing_venv_fails_without_publishing" time="0.006" /><testcase classname="tests.health.test_health_scripts" name="test_net_missing_publisher_fails" time="0.006" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_good_result_publishes_retained_reading" time="0.242" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_slow_result_publishes_anomaly" time="0.364" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_failure_publishes_failed_anomaly" time="0.117" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_failure_error_text_is_escaped[Unable to connect to &quot;www.speedtest.net&quot;-Unable to connect to &quot;www.speedtest.net&quot;]" time="0.126" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_failure_error_text_is_escaped[path C:\\temp\\x failed-path C:\\temp\\x failed]" time="0.134" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_failure_error_text_is_escaped[tab\there\rcr-tab here cr]" time="0.126" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_server_names_are_escaped" time="0.247" /><testcase classname="tests.health.test_health_scripts" name="test_speedtest_missing_venv_fails" time="0.008" /><testcase classname="tests.health.test_mqtt_publish" name="test_defaults" time="0.002" /><testcase classname="tests.health.test_mqtt_publish" name="test_all_options" time="0.002" /><testcase classname="tests.health.test_mqtt_publish" name="test_username_without_password_sends_empty_password" time="0.001" /><testcase classname="tests.health.test_mqtt_publish" name="test_publish_failure_returns_1" time="0.002" /><testcase classname="tests.health.test_mqtt_publish" name="test_bad_arguments_exit_2[args0]" time="0.003" /><testcase classname="tests.health.test_mqtt_publish" name="test_bad_arguments_exit_2[args1]" time="0.002" /><testcase classname="tests.health.test_mqtt_publish" name="test_bad_arguments_exit_2[args2]" time="0.002" /><testcase classname="tests.postgres.test_backup_app" name="test_dump_runs_pg_dump_then_zip[/trigger_data_dump-data_dump-extra_args0]" time="0.027" /><testcase classname="tests.postgres.test_backup_app" name="test_dump_runs_pg_dump_then_zip[/trigger_data_data_only-data_data_only-extra_args1]" time="0.007" /><testcase classname="tests.postgres.test_backup_app" name="test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_dump]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_data_only]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_no_hard_coded_database_users" time="0.001" /><testcase classname="tests.postgres.test_backup_app" name="test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_dump]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_data_only]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_missing_zip_binary_returns_500" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_get_is_not_allowed[/trigger_data_dump]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_get_is_not_allowed[/trigger_data_data_only]" time="0.005" /><testcase classname="tests.postgres.test_backup_app" name="test_backup_dir_defaults_to_backups" time="0.003" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_deletes_only_old_dump_files" time="0.010" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_boundary_is_exactly_keep_days" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_always_keeps_newest_of_each_type" time="0.005" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_uses_keep_days_setting" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_missing_dir_returns_empty" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_cleanup_delete_error_is_logged_not_raised" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_backup_route_runs_cleanup[/trigger_data_dump]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_backup_route_runs_cleanup[/trigger_data_data_only]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_backup_not_cleaned_up_when_dump_fails" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_keep_days_setting[None-30]" time="0.003" /><testcase classname="tests.postgres.test_backup_app" name="test_keep_days_setting[7-7]" time="0.006" /><testcase classname="tests.postgres.test_backup_app" name="test_keep_days_setting[abc-30]" time="0.003" /><testcase classname="tests.postgres.test_backup_app" name="test_keep_days_setting[0-30]" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_keep_days_setting[-5-30]" time="0.003" /><testcase classname="tests.postgres.test_backup_app" name="test_last_backup_defaults_to_epoch" time="0.003" /><testcase classname="tests.postgres.test_backup_app" name="test_last_backup_round_trip" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_last_backup_invalid_file_raises" time="0.005" /><testcase classname="tests.postgres.test_backup_app" name="test_app_has_no_startup_or_shutdown_hooks" time="0.004" /><testcase classname="tests.postgres.test_backup_app" name="test_app_does_not_import_asyncpg" time="0.001" /><testcase classname="tests.quart_app.test_hass" name="test_set_light_on_calls_turn_on_with_options" time="0.003"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec393790&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec393710&gt;
+
+    async def test_set_light_on_calls_turn_on_with_options(client, ha):
+        resp = await client.post(
+            "/api/light/light.kitchen/set",
+            json={"state": "ON", "brightness": 128, "ignored": 1},
+        )
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:24: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_off_calls_turn_off" time="0.003"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec39c1d0&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec39c3d0&gt;
+
+    async def test_set_light_off_calls_turn_off(client, ha):
+        resp = await client.post("/api/light/light.kitchen/set", json={"state": "off"})
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:36: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs0-state must be 'on' or 'off']" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec3a0bd0&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec39cb10&gt;
+kwargs = {'json': {'state': 'dim'}}, error = "state must be 'on' or 'off'"
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs1-state must be 'on' or 'off']" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeeca91f50&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeeca90a50&gt;
+kwargs = {'json': {'state': 1}}, error = "state must be 'on' or 'off'"
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs2-state must be 'on' or 'off']" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec4b6e50&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec4b5fd0&gt;
+kwargs = {'json': {'state': None}}, error = "state must be 'on' or 'off'"
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs3-missing 'state' in payload]" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec331110&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec331510&gt;
+kwargs = {'json': {'brightness': 10}}, error = "missing 'state' in payload"
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs4-missing 'state' in payload]" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec428f50&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec429b50&gt;
+kwargs = {'json': ['state']}, error = "missing 'state' in payload"
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_set_light_rejects_bad_requests[kwargs5-invalid json]" time="0.003"><failure message="assert 403 == 400&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec3328d0&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeeca91610&gt;
+kwargs = {'data': 'not json', 'headers': {'Content-Type': 'application/json'}}
+error = 'invalid json'
+
+    @pytest.mark.parametrize(
+        "kwargs, error",
+        [
+            ({"json": {"state": "dim"}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": 1}}, "state must be 'on' or 'off'"),
+            ({"json": {"state": None}}, "state must be 'on' or 'off'"),
+            ({"json": {"brightness": 10}}, "missing 'state' in payload"),
+            ({"json": ["state"]}, "missing 'state' in payload"),
+            ({"data": "not json", "headers": {"Content-Type": "application/json"}}, "invalid json"),
+        ],
+    )
+    async def test_set_light_rejects_bad_requests(client, ha, kwargs, error):
+        resp = await client.post("/api/light/light.kitchen/set", **kwargs)
+    
+&gt;       assert resp.status_code == 400
+E       assert 403 == 400
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:54: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_missing_token_returns_500_without_calling_ha" time="0.003"><failure message="assert 403 == 500&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeeca63fd0&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeeca63110&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ffeeca60910&gt;
+
+    async def test_missing_token_returns_500_without_calling_ha(client, ha, monkeypatch):
+        monkeypatch.setattr(hass, "HASS_TOKEN", None)
+    
+        resp = await client.post("/api/light/light.kitchen/toggle")
+    
+&gt;       assert resp.status_code == 500
+E       assert 403 == 500
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:64: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_ha_connection_error_returns_500" time="0.003"><failure message="assert 403 == 500&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec4b5110&gt;
+app = &lt;Quart 'main'&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ffeec4b6f50&gt;
+
+    async def test_ha_connection_error_returns_500(client, app, monkeypatch):
+        monkeypatch.setattr(hass, "HASS_TOKEN", "test-token")
+        app.http_session = FakeSession(error=aiohttp.ClientError("unreachable"))
+    
+        resp = await client.post("/api/light/light.kitchen/set", json={"state": "on"})
+    
+&gt;       assert resp.status_code == 500
+E       assert 403 == 500
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:75: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_toggle_passes_through_ha_status" time="0.003"><failure message="assert 403 == 401&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec397610&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec3ad890&gt;
+
+    async def test_toggle_passes_through_ha_status(client, ha):
+        ha.status, ha.body = 401, "401: Unauthorized"
+    
+        resp = await client.post("/api/light/light.kitchen/toggle")
+    
+&gt;       assert resp.status_code == 401
+E       assert 403 == 401
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:84: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_get_state_returns_entity_json" time="0.002"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec455610&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeec456310&gt;
+
+    async def test_get_state_returns_entity_json(client, ha):
+        ha.body = {"entity_id": "light.kitchen", "state": "on"}
+    
+        resp = await client.get("/api/light/light.kitchen/get_state")
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:94: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_get_state_passes_through_errors" time="0.003"><failure message="assert 403 == 404&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeeca9b850&gt;
+ha = &lt;conftest.FakeSession object at 0x7ffeeca9a710&gt;
+
+    async def test_get_state_passes_through_errors(client, ha):
+        ha.status, ha.body = 404, '{"message": "Entity not found."}'
+    
+        resp = await client.get("/api/light/light.missing/get_state")
+    
+&gt;       assert resp.status_code == 404
+E       assert 403 == 404
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:105: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_light_ui_renders_entity" time="0.003"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec4c3ad0&gt;
+
+    async def test_light_ui_renders_entity(client):
+        resp = await client.get("/ui/light/light.kitchen")
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:112: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_light_ui_escapes_entity_id[%3Cscript%3Ealert(1)%3C/script%3E-&lt;script&gt;alert(1)&lt;/script&gt;-Light: &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;-const entity = &quot;\\u003cscript\\u003ealert(1)\\u003c/script\\u003e&quot;;]" time="0.003"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeec42af50&gt;
+path = '%3Cscript%3Ealert(1)%3C/script%3E', raw = '&lt;script&gt;alert(1)&lt;/script&gt;'
+escaped_html = 'Light: &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;'
+escaped_js = 'const entity = "\\u003cscript\\u003ealert(1)\\u003c/script\\u003e";'
+
+    @pytest.mark.parametrize(
+        "path, raw, escaped_html, escaped_js",
+        [
+            (
+                "%3Cscript%3Ealert(1)%3C/script%3E",
+                "&lt;script&gt;alert(1)&lt;/script&gt;",
+                "Light: &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;",
+                r'const entity = "\u003cscript\u003ealert(1)\u003c/script\u003e";',
+            ),
+            (
+                'x%22;alert(1);//',
+                'x";alert(1);//',
+                "Light: x&amp;quot;;alert(1);//",
+                r'const entity = "x\";alert(1);//";',
+            ),
+        ],
+    )
+    async def test_light_ui_escapes_entity_id(client, path, raw, escaped_html, escaped_js):
+        resp = await client.get(f"/ui/light/{path}")
+        page = await resp.get_data(as_text=True)
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:140: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_light_ui_escapes_entity_id[x%22;alert(1);//-x&quot;;alert(1);//-Light: x&amp;quot;;alert(1);//-const entity = &quot;x\\&quot;;alert(1);//&quot;;]" time="0.003"><failure message="assert 403 == 200&#10; +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code">client = &lt;quart.testing.client.QuartClient object at 0x7ffeeca90990&gt;
+path = 'x%22;alert(1);//', raw = 'x";alert(1);//'
+escaped_html = 'Light: x&amp;quot;;alert(1);//'
+escaped_js = 'const entity = "x\\";alert(1);//";'
+
+    @pytest.mark.parametrize(
+        "path, raw, escaped_html, escaped_js",
+        [
+            (
+                "%3Cscript%3Ealert(1)%3C/script%3E",
+                "&lt;script&gt;alert(1)&lt;/script&gt;",
+                "Light: &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;",
+                r'const entity = "\u003cscript\u003ealert(1)\u003c/script\u003e";',
+            ),
+            (
+                'x%22;alert(1);//',
+                'x";alert(1);//',
+                "Light: x&amp;quot;;alert(1);//",
+                r'const entity = "x\";alert(1);//";',
+            ),
+        ],
+    )
+    async def test_light_ui_escapes_entity_id(client, path, raw, escaped_html, escaped_js):
+        resp = await client.get(f"/ui/light/{path}")
+        page = await resp.get_data(as_text=True)
+    
+&gt;       assert resp.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = &lt;Response [403 FORBIDDEN]&gt;.status_code
+
+tests/quart_app/test_hass.py:140: AssertionError</failure></testcase><testcase classname="tests.quart_app.test_hass" name="test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/set]" time="0.002" /><testcase classname="tests.quart_app.test_hass" name="test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/toggle]" time="0.002" /><testcase classname="tests.quart_app.test_hass" name="test_light_routes_refuse_lan_clients[GET-/api/light/light.kitchen/get_state]" time="0.002" /><testcase classname="tests.quart_app.test_hass" name="test_light_routes_refuse_lan_clients[GET-/ui/light/light.kitchen]" time="0.003" /><testcase classname="tests.quart_app.test_hass" name="test_light_routes_allow_ipv6_localhost" time="0.002" /><testcase classname="tests.quart_app.test_home" name="test_home_lists_temperature_devices_with_chart_links" time="0.004" /><testcase classname="tests.quart_app.test_home" name="test_home_query_skips_device_temperature_and_guards_scalars" time="0.003" /><testcase classname="tests.quart_app.test_home" name="test_home_page_renders" time="0.013" /><testcase classname="tests.quart_app.test_home" name="test_home_page_renders_empty" time="0.003" /><testcase classname="tests.quart_app.test_home" name="test_charts_are_open_to_lan_clients[/]" time="0.004" /><testcase classname="tests.quart_app.test_home" name="test_charts_are_open_to_lan_clients[/temperature/zigbee/Probe]" time="0.013" /><testcase classname="tests.quart_app.test_home" name="test_charts_are_open_to_lan_clients[/presence]" time="0.009" /><testcase classname="tests.quart_app.test_home" name="test_charts_are_open_to_lan_clients[/status]" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_status" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_write_message_inserts_json_payload" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_write_message_swallows_db_errors" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_init_db_creates_database_when_missing" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_init_db_skips_create_when_database_exists" time="0.002" /><testcase classname="tests.quart_app.test_main" name="test_mqtt_listener_decodes_json_and_falls_back_to_raw" time="0.002" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[payload0-21.5]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[payload1-19.0]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[{&quot;temperature&quot;: 18.25}-18.25]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[payload3-None]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[payload4-None]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[not json-None]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[payload6-None]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_extract_temperature[None-None]" time="0.001" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_queries_device_topic_and_builds_points" time="0.003" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_hours_is_clamped[-24]" time="0.003" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_hours_is_clamped[?hours=0-1]" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_hours_is_clamped[?hours=9999-720]" time="0.003" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_hours_is_clamped[?hours=abc-24]" time="0.002" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_thins_long_series_and_keeps_last_point" time="0.009" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_page_renders" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_temperature_page_renders_empty" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_zigbee_temperature_queries_z2m_topic" time="0.003" /><testcase classname="tests.quart_app.test_plots" name="test_zigbee_temperature_without_target" time="0.005" /><testcase classname="tests.quart_app.test_plots" name="test_zigbee_temperature_page_renders_target_and_range_links" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_shelly_page_has_no_target_line" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_presence_groups_events_by_device" time="0.002" /><testcase classname="tests.quart_app.test_plots" name="test_presence_page_renders" time="0.004" /><testcase classname="tests.quart_app.test_plots" name="test_presence_page_renders_empty" time="0.003" /><testcase classname="tests.quart_app.test_plots" name="test_get_pool_creates_once_and_caches[blueprints.temperature_plot]" time="0.002" /><testcase classname="tests.quart_app.test_plots" name="test_get_pool_creates_once_and_caches[blueprints.presence_plot]" time="0.002" /></testsuite></testsuites>

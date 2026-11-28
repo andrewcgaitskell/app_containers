@@ -1,0 +1,595 @@
+Test run:   20261127T130540Z
+Commit:     8730eb6 (+uncommitted changes)
+Image:      app-containers-tests:latest (python:3.11-slim)
+Command:    pytest -v -rA  (in container, no network)
+----------------------------------------------------------------
+sha256:1153376fedb70f2e8760f1c3693b700b7bdbdb0b6ea4bfc8244e2dd066491db6
+WARNING: Your kernel does not support memory limit capabilities or the cgroup is not mounted. Limitation discarded.
+============================= test session starts ==============================
+platform linux -- Python 3.11.18, pytest-9.2.0, pluggy-1.7.0 -- /usr/local/bin/python
+rootdir: /work
+configfile: pytest.ini
+testpaths: tests
+plugins: asyncio-1.5.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 150 items
+
+tests/backup/test_offsite_backup.py::test_script_syntax FAILED           [  0%]
+tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise FAILED [  1%]
+tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file FAILED [  2%]
+tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload FAILED [  2%]
+tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip FAILED [  3%]
+tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue FAILED [  4%]
+tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up FAILED [  4%]
+tests/backup/test_offsite_backup.py::test_fails_without_passphrase FAILED [  5%]
+tests/backup/test_offsite_backup.py::test_rejects_bad_keep PASSED        [  6%]
+tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload FAILED [  6%]
+tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning FAILED [  7%]
+tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files FAILED [  8%]
+tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh] PASSED [  8%]
+tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh] PASSED [  9%]
+tests/health/test_health_config.py::test_shell_syntax[net-speedtest-daily.sh] PASSED [ 10%]
+tests/health/test_health_config.py::test_shell_syntax[pg-dump-trigger.sh] PASSED [ 10%]
+tests/health/test_health_config.py::test_shell_syntax[rebuild.sh] PASSED [ 11%]
+tests/health/test_health_config.py::test_dockerfile_copy_sources_exist PASSED [ 12%]
+tests/health/test_health_config.py::test_mqtt_helper_installed_under_name_scripts_expect PASSED [ 12%]
+tests/health/test_health_config.py::test_crontab_installed_only_as_system_crontab PASSED [ 13%]
+tests/health/test_health_config.py::test_crontab_ends_with_newline PASSED [ 14%]
+tests/health/test_health_config.py::test_crontab_entries_are_well_formed_and_point_at_installed_scripts PASSED [ 14%]
+tests/health/test_health_config.py::test_every_installed_script_is_scheduled PASSED [ 15%]
+tests/health/test_health_config.py::test_speedtest_runs_once_daily PASSED [ 16%]
+tests/health/test_health_scripts.py::test_ha_healthy_resets_count_and_does_not_restart PASSED [ 16%]
+tests/health/test_health_scripts.py::test_ha_first_failure_counts_but_does_not_restart PASSED [ 17%]
+tests/health/test_health_scripts.py::test_ha_third_failure_restarts_and_starts_cooldown PASSED [ 18%]
+tests/health/test_health_scripts.py::test_ha_skips_check_during_cooldown PASSED [ 18%]
+tests/health/test_health_scripts.py::test_ha_expired_cooldown_is_cleared_and_check_runs PASSED [ 19%]
+tests/health/test_health_scripts.py::test_ha_recovery_after_failures_is_logged PASSED [ 20%]
+tests/health/test_health_scripts.py::test_ha_corrupt_fail_count_treated_as_zero PASSED [ 20%]
+tests/health/test_health_scripts.py::test_ha_trims_oversized_log PASSED  [ 21%]
+tests/health/test_health_scripts.py::test_pg_dump_trigger_success PASSED [ 22%]
+tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[500-0] PASSED [ 22%]
+tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[000-7] PASSED [ 23%]
+tests/health/test_health_scripts.py::test_net_all_up_publishes_retained_state_only PASSED [ 24%]
+tests/health/test_health_scripts.py::test_net_partial_failure_is_still_up PASSED [ 24%]
+tests/health/test_health_scripts.py::test_net_all_down_publishes_anomaly PASSED [ 25%]
+tests/health/test_health_scripts.py::test_net_restored_after_down_publishes_anomaly PASSED [ 26%]
+tests/health/test_health_scripts.py::test_net_missing_venv_fails_without_publishing PASSED [ 26%]
+tests/health/test_health_scripts.py::test_net_missing_publisher_fails PASSED [ 27%]
+tests/health/test_health_scripts.py::test_speedtest_good_result_publishes_retained_reading PASSED [ 28%]
+tests/health/test_health_scripts.py::test_speedtest_slow_result_publishes_anomaly PASSED [ 28%]
+tests/health/test_health_scripts.py::test_speedtest_failure_publishes_failed_anomaly PASSED [ 29%]
+tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[Unable to connect to "www.speedtest.net"-Unable to connect to "www.speedtest.net"] PASSED [ 30%]
+tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[path C:\\temp\\x failed-path C:\\temp\\x failed] PASSED [ 30%]
+tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[tab\there\rcr-tab here cr] PASSED [ 31%]
+tests/health/test_health_scripts.py::test_speedtest_server_names_are_escaped PASSED [ 32%]
+tests/health/test_health_scripts.py::test_speedtest_missing_venv_fails PASSED [ 32%]
+tests/health/test_mqtt_publish.py::test_defaults PASSED                  [ 33%]
+tests/health/test_mqtt_publish.py::test_all_options PASSED               [ 34%]
+tests/health/test_mqtt_publish.py::test_username_without_password_sends_empty_password PASSED [ 34%]
+tests/health/test_mqtt_publish.py::test_publish_failure_returns_1 PASSED [ 35%]
+tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args0] PASSED [ 36%]
+tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args1] PASSED [ 36%]
+tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args2] PASSED [ 37%]
+tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_dump-data_dump-extra_args0] PASSED [ 38%]
+tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_data_only-data_data_only-extra_args1] PASSED [ 38%]
+tests/postgres/test_backup_app.py::test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_dump] PASSED [ 39%]
+tests/postgres/test_backup_app.py::test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_data_only] PASSED [ 40%]
+tests/postgres/test_backup_app.py::test_no_hard_coded_database_users PASSED [ 40%]
+tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_dump] PASSED [ 41%]
+tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_data_only] PASSED [ 42%]
+tests/postgres/test_backup_app.py::test_missing_zip_binary_returns_500 PASSED [ 42%]
+tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_dump] PASSED [ 43%]
+tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_data_only] PASSED [ 44%]
+tests/postgres/test_backup_app.py::test_backup_dir_defaults_to_backups PASSED [ 44%]
+tests/postgres/test_backup_app.py::test_cleanup_deletes_only_old_dump_files PASSED [ 45%]
+tests/postgres/test_backup_app.py::test_cleanup_boundary_is_exactly_keep_days PASSED [ 46%]
+tests/postgres/test_backup_app.py::test_cleanup_always_keeps_newest_of_each_type PASSED [ 46%]
+tests/postgres/test_backup_app.py::test_cleanup_uses_keep_days_setting PASSED [ 47%]
+tests/postgres/test_backup_app.py::test_cleanup_missing_dir_returns_empty PASSED [ 48%]
+tests/postgres/test_backup_app.py::test_cleanup_delete_error_is_logged_not_raised PASSED [ 48%]
+tests/postgres/test_backup_app.py::test_backup_route_runs_cleanup[/trigger_data_dump] PASSED [ 49%]
+tests/postgres/test_backup_app.py::test_backup_route_runs_cleanup[/trigger_data_data_only] PASSED [ 50%]
+tests/postgres/test_backup_app.py::test_backup_not_cleaned_up_when_dump_fails PASSED [ 50%]
+tests/postgres/test_backup_app.py::test_keep_days_setting[None-30] PASSED [ 51%]
+tests/postgres/test_backup_app.py::test_keep_days_setting[7-7] PASSED    [ 52%]
+tests/postgres/test_backup_app.py::test_keep_days_setting[abc-30] PASSED [ 52%]
+tests/postgres/test_backup_app.py::test_keep_days_setting[0-30] PASSED   [ 53%]
+tests/postgres/test_backup_app.py::test_keep_days_setting[-5-30] PASSED  [ 54%]
+tests/postgres/test_backup_app.py::test_last_backup_defaults_to_epoch PASSED [ 54%]
+tests/postgres/test_backup_app.py::test_last_backup_round_trip PASSED    [ 55%]
+tests/postgres/test_backup_app.py::test_last_backup_invalid_file_raises PASSED [ 56%]
+tests/postgres/test_backup_app.py::test_app_has_no_startup_or_shutdown_hooks PASSED [ 56%]
+tests/postgres/test_backup_app.py::test_app_does_not_import_asyncpg PASSED [ 57%]
+tests/quart_app/test_hass.py::test_set_light_on_calls_turn_on_with_options PASSED [ 58%]
+tests/quart_app/test_hass.py::test_set_light_off_calls_turn_off PASSED   [ 58%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs0-state must be 'on' or 'off'] PASSED [ 59%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs1-state must be 'on' or 'off'] PASSED [ 60%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs2-state must be 'on' or 'off'] PASSED [ 60%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs3-missing 'state' in payload] PASSED [ 61%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs4-missing 'state' in payload] PASSED [ 62%]
+tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs5-invalid json] PASSED [ 62%]
+tests/quart_app/test_hass.py::test_missing_token_returns_500_without_calling_ha PASSED [ 63%]
+tests/quart_app/test_hass.py::test_ha_connection_error_returns_500 PASSED [ 64%]
+tests/quart_app/test_hass.py::test_toggle_passes_through_ha_status PASSED [ 64%]
+tests/quart_app/test_hass.py::test_get_state_returns_entity_json PASSED  [ 65%]
+tests/quart_app/test_hass.py::test_get_state_passes_through_errors PASSED [ 66%]
+tests/quart_app/test_hass.py::test_light_ui_renders_entity PASSED        [ 66%]
+tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[%3Cscript%3Ealert(1)%3C/script%3E-<script>alert(1)</script>-Light: &lt;script&gt;alert(1)&lt;/script&gt;-const entity = "\\u003cscript\\u003ealert(1)\\u003c/script\\u003e";] PASSED [ 67%]
+tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[x%22;alert(1);//-x";alert(1);//-Light: x&quot;;alert(1);//-const entity = "x\\";alert(1);//";] PASSED [ 68%]
+tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/set] PASSED [ 68%]
+tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/toggle] PASSED [ 69%]
+tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[GET-/api/light/light.kitchen/get_state] PASSED [ 70%]
+tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[GET-/ui/light/light.kitchen] PASSED [ 70%]
+tests/quart_app/test_hass.py::test_test_client_address_is_not_trusted_by_default PASSED [ 71%]
+tests/quart_app/test_hass.py::test_light_routes_allow_ipv6_localhost PASSED [ 72%]
+tests/quart_app/test_home.py::test_home_lists_temperature_devices_with_chart_links PASSED [ 72%]
+tests/quart_app/test_home.py::test_home_query_skips_device_temperature_and_guards_scalars PASSED [ 73%]
+tests/quart_app/test_home.py::test_home_page_renders PASSED              [ 74%]
+tests/quart_app/test_home.py::test_home_page_renders_empty PASSED        [ 74%]
+tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/] PASSED [ 75%]
+tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/temperature/zigbee/Probe] PASSED [ 76%]
+tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/presence] PASSED [ 76%]
+tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/status] PASSED [ 77%]
+tests/quart_app/test_main.py::test_status PASSED                         [ 78%]
+tests/quart_app/test_main.py::test_write_message_inserts_json_payload PASSED [ 78%]
+tests/quart_app/test_main.py::test_write_message_swallows_db_errors PASSED [ 79%]
+tests/quart_app/test_main.py::test_init_db_creates_database_when_missing PASSED [ 80%]
+tests/quart_app/test_main.py::test_init_db_skips_create_when_database_exists PASSED [ 80%]
+tests/quart_app/test_main.py::test_mqtt_listener_decodes_json_and_falls_back_to_raw PASSED [ 81%]
+tests/quart_app/test_plots.py::test_extract_temperature[payload0-21.5] PASSED [ 82%]
+tests/quart_app/test_plots.py::test_extract_temperature[payload1-19.0] PASSED [ 82%]
+tests/quart_app/test_plots.py::test_extract_temperature[{"temperature": 18.25}-18.25] PASSED [ 83%]
+tests/quart_app/test_plots.py::test_extract_temperature[payload3-None] PASSED [ 84%]
+tests/quart_app/test_plots.py::test_extract_temperature[payload4-None] PASSED [ 84%]
+tests/quart_app/test_plots.py::test_extract_temperature[not json-None] PASSED [ 85%]
+tests/quart_app/test_plots.py::test_extract_temperature[payload6-None] PASSED [ 86%]
+tests/quart_app/test_plots.py::test_extract_temperature[None-None] PASSED [ 86%]
+tests/quart_app/test_plots.py::test_temperature_queries_device_topic_and_builds_points PASSED [ 87%]
+tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[-24] PASSED [ 88%]
+tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=0-1] PASSED [ 88%]
+tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=9999-720] PASSED [ 89%]
+tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=abc-24] PASSED [ 90%]
+tests/quart_app/test_plots.py::test_temperature_thins_long_series_and_keeps_last_point PASSED [ 90%]
+tests/quart_app/test_plots.py::test_temperature_page_renders PASSED      [ 91%]
+tests/quart_app/test_plots.py::test_temperature_page_renders_empty PASSED [ 92%]
+tests/quart_app/test_plots.py::test_zigbee_temperature_queries_z2m_topic PASSED [ 92%]
+tests/quart_app/test_plots.py::test_zigbee_temperature_without_target PASSED [ 93%]
+tests/quart_app/test_plots.py::test_zigbee_temperature_page_renders_target_and_range_links PASSED [ 94%]
+tests/quart_app/test_plots.py::test_shelly_page_has_no_target_line PASSED [ 94%]
+tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/temperature/shelly1] PASSED [ 95%]
+tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/temperature/zigbee/Probe] PASSED [ 96%]
+tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/presence] PASSED [ 96%]
+tests/quart_app/test_plots.py::test_presence_groups_events_by_device PASSED [ 97%]
+tests/quart_app/test_plots.py::test_presence_page_renders PASSED         [ 98%]
+tests/quart_app/test_plots.py::test_presence_page_renders_empty PASSED   [ 98%]
+tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.temperature_plot] PASSED [ 99%]
+tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.presence_plot] PASSED [100%]
+
+=================================== FAILURES ===================================
+______________________________ test_script_syntax ______________________________
+
+    def test_script_syntax():
+>       subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
+
+tests/backup/test_offsite_backup.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['bash', '-n', '/work/backup/offsite-backup.sh'],), kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['bash', '-n', '/work/backup/offsite-backup.sh']' returned non-zero exit status 127.
+
+/usr/local/lib/python3.11/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+bash: /work/backup/offsite-backup.sh: No such file or directory
+_________________ test_backs_up_critical_data_and_skips_noise __________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd399b10>
+
+    def test_backs_up_critical_data_and_skips_noise(sb):
+        sb.populate()
+        result = sb.run()
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
+E         
+E       assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:135: AssertionError
+______________________ test_encrypts_with_passphrase_file ______________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd3b70d0>
+
+    def test_encrypts_with_passphrase_file(sb):
+        sb.populate()
+>       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = <test_offsite_backup.Sandbox object at 0x7ffefd3b70d0>.run
+
+tests/backup/test_offsite_backup.py:171: AssertionError
+___________________ test_local_archive_removed_after_upload ____________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd438250>
+
+    def test_local_archive_removed_after_upload(sb):
+        sb.populate()
+>       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = <test_offsite_backup.Sandbox object at 0x7ffefd438250>.run
+
+tests/backup/test_offsite_backup.py:180: AssertionError
+___________________ test_falls_back_to_sql_dump_when_no_zip ____________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd3a7ad0>
+
+    def test_falls_back_to_sql_dump_when_no_zip(sb):
+        sb.file("home_assistant/config/configuration.yaml")
+        sb.file("postgres_data/backups/data_dump_20261125_0601.sql")
+>       assert sb.run().returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+E        +    where CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n') = run()
+E        +      where run = <test_offsite_backup.Sandbox object at 0x7ffefd3a7ad0>.run
+
+tests/backup/test_offsite_backup.py:187: AssertionError
+____________________ test_missing_folders_warn_but_continue ____________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd3d2650>
+
+    def test_missing_folders_warn_but_continue(sb):
+        sb.file("home_assistant/config/configuration.yaml")
+        result = sb.run()
+>       assert result.returncode == 0
+E       AssertionError: assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:194: AssertionError
+______________________ test_fails_when_nothing_to_back_up ______________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd9e4fd0>
+
+    def test_fails_when_nothing_to_back_up(sb):
+        result = sb.run()
+        assert result.returncode != 0
+>       assert "nothing to back up" in result.stdout
+E       AssertionError: assert 'nothing to back up' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:203: AssertionError
+________________________ test_fails_without_passphrase _________________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd3c1f90>
+
+    def test_fails_without_passphrase(sb):
+        sb.populate()
+        sb.passphrase.write_text("")
+        result = sb.run()
+        assert result.returncode != 0
+>       assert "passphrase file" in result.stdout
+E       AssertionError: assert 'passphrase file' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:212: AssertionError
+_____________________ test_gpg_failure_stops_before_upload _____________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd994450>
+
+    def test_gpg_failure_stops_before_upload(sb):
+        sb.populate()
+        result = sb.run(GPG_EXIT=2)
+        assert result.returncode != 0
+>       assert "encryption failed" in result.stdout
+E       AssertionError: assert 'encryption failed' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:227: AssertionError
+______________________ test_upload_failure_skips_pruning _______________________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd42c450>
+
+    def test_upload_failure_skips_pruning(sb):
+        sb.populate()
+        folder = sb.drive / "pi-backups"
+        folder.mkdir()
+        for day in range(1, 6):
+            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
+        result = sb.run(RCLONE_COPY_EXIT=1, KEEP=2)
+        assert result.returncode != 0
+>       assert "upload failed" in result.stdout
+E       AssertionError: assert 'upload failed' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').stdout
+
+tests/backup/test_offsite_backup.py:239: AssertionError
+______________ test_prunes_to_keep_newest_and_leaves_other_files _______________
+
+sb = <test_offsite_backup.Sandbox object at 0x7ffefd43a150>
+
+    def test_prunes_to_keep_newest_and_leaves_other_files(sb):
+        sb.populate()
+        folder = sb.drive / "pi-backups"
+        folder.mkdir()
+        for day in range(1, 6):
+            (folder / f"home-backup-202611{day:02d}_0630.tar.gz.gpg").write_text("old")
+        (folder / "notes.txt").write_text("keep me")
+        (folder / "home-backup-manual.tar.gz.gpg").write_text("keep me")
+    
+        result = sb.run(KEEP=3)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: bash: /work/backup/offsite-backup.sh: No such file or directory
+E         
+E       assert 127 == 0
+E        +  where 127 = CompletedProcess(args=['bash', '/work/backup/offsite-backup.sh'], returncode=127, stdout='', stderr='bash: /work/backup/offsite-backup.sh: No such file or directory\n').returncode
+
+tests/backup/test_offsite_backup.py:254: AssertionError
+==================================== PASSES ====================================
+_______________________ test_bad_arguments_exit_2[args0] _______________________
+----------------------------- Captured stderr call -----------------------------
+usage: mqtt_publish.py [-h] [--host HOST] [--port PORT] --topic TOPIC
+                       --payload PAYLOAD [--qos {0,1,2}] [--retain]
+                       [--username USERNAME] [--password PASSWORD]
+mqtt_publish.py: error: the following arguments are required: --topic
+_______________________ test_bad_arguments_exit_2[args1] _______________________
+----------------------------- Captured stderr call -----------------------------
+usage: mqtt_publish.py [-h] [--host HOST] [--port PORT] --topic TOPIC
+                       --payload PAYLOAD [--qos {0,1,2}] [--retain]
+                       [--username USERNAME] [--password PASSWORD]
+mqtt_publish.py: error: the following arguments are required: --payload
+_______________________ test_bad_arguments_exit_2[args2] _______________________
+----------------------------- Captured stderr call -----------------------------
+usage: mqtt_publish.py [-h] [--host HOST] [--port PORT] --topic TOPIC
+                       --payload PAYLOAD [--qos {0,1,2}] [--retain]
+                       [--username USERNAME] [--password PASSWORD]
+mqtt_publish.py: error: argument --qos: invalid choice: 3 (choose from 0, 1, 2)
+____________________ test_cleanup_missing_dir_returns_empty ____________________
+------------------------------ Captured log call -------------------------------
+WARNING  root:app.py:57 Backup cleanup skipped: cannot list /tmp/pytest-of-root/pytest-0/test_cleanup_missing_dir_retur0/backups: [Errno 2] No such file or directory: '/tmp/pytest-of-root/pytest-0/test_cleanup_missing_dir_retur0/backups'
+________________ test_cleanup_delete_error_is_logged_not_raised ________________
+------------------------------ Captured log call -------------------------------
+WARNING  root:app.py:83 Backup cleanup could not delete data_dump_20261001_0601.zip: read-only
+_____________________ test_ha_connection_error_returns_500 _____________________
+------------------------------ Captured log call -------------------------------
+ERROR    root:hass.py:101 Error calling Home Assistant
+Traceback (most recent call last):
+  File "/work/quart_app/blueprints/hass.py", line 92, in set_light
+    status, result = await call_hass_service("light", "turn_on", service_data)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/quart_app/blueprints/hass.py", line 40, in call_hass_service
+    async with session.post(url, headers=headers, json=service_data) as resp:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/quart_app/conftest.py", line 56, in post
+    return self._request("POST", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/quart_app/conftest.py", line 52, in _request
+    raise self.error
+aiohttp.client_exceptions.ClientError: unreachable
+____________________ test_write_message_swallows_db_errors _____________________
+------------------------------ Captured log call -------------------------------
+ERROR    root:main.py:105 Error writing message to DB: connection refused
+____________ test_mqtt_listener_decodes_json_and_falls_back_to_raw _____________
+------------------------------ Captured log call -------------------------------
+WARNING  root:main.py:120 Failed to decode JSON; storing raw payload.
+-------------- generated xml file: /results/20261127T130540Z.xml ---------------
+=========================== short test summary info ============================
+PASSED tests/backup/test_offsite_backup.py::test_rejects_bad_keep
+PASSED tests/health/test_health_config.py::test_shell_syntax[ha-health-monitor.sh]
+PASSED tests/health/test_health_config.py::test_shell_syntax[net-connectivity-check.sh]
+PASSED tests/health/test_health_config.py::test_shell_syntax[net-speedtest-daily.sh]
+PASSED tests/health/test_health_config.py::test_shell_syntax[pg-dump-trigger.sh]
+PASSED tests/health/test_health_config.py::test_shell_syntax[rebuild.sh]
+PASSED tests/health/test_health_config.py::test_dockerfile_copy_sources_exist
+PASSED tests/health/test_health_config.py::test_mqtt_helper_installed_under_name_scripts_expect
+PASSED tests/health/test_health_config.py::test_crontab_installed_only_as_system_crontab
+PASSED tests/health/test_health_config.py::test_crontab_ends_with_newline
+PASSED tests/health/test_health_config.py::test_crontab_entries_are_well_formed_and_point_at_installed_scripts
+PASSED tests/health/test_health_config.py::test_every_installed_script_is_scheduled
+PASSED tests/health/test_health_config.py::test_speedtest_runs_once_daily
+PASSED tests/health/test_health_scripts.py::test_ha_healthy_resets_count_and_does_not_restart
+PASSED tests/health/test_health_scripts.py::test_ha_first_failure_counts_but_does_not_restart
+PASSED tests/health/test_health_scripts.py::test_ha_third_failure_restarts_and_starts_cooldown
+PASSED tests/health/test_health_scripts.py::test_ha_skips_check_during_cooldown
+PASSED tests/health/test_health_scripts.py::test_ha_expired_cooldown_is_cleared_and_check_runs
+PASSED tests/health/test_health_scripts.py::test_ha_recovery_after_failures_is_logged
+PASSED tests/health/test_health_scripts.py::test_ha_corrupt_fail_count_treated_as_zero
+PASSED tests/health/test_health_scripts.py::test_ha_trims_oversized_log
+PASSED tests/health/test_health_scripts.py::test_pg_dump_trigger_success
+PASSED tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[500-0]
+PASSED tests/health/test_health_scripts.py::test_pg_dump_trigger_failure_is_logged[000-7]
+PASSED tests/health/test_health_scripts.py::test_net_all_up_publishes_retained_state_only
+PASSED tests/health/test_health_scripts.py::test_net_partial_failure_is_still_up
+PASSED tests/health/test_health_scripts.py::test_net_all_down_publishes_anomaly
+PASSED tests/health/test_health_scripts.py::test_net_restored_after_down_publishes_anomaly
+PASSED tests/health/test_health_scripts.py::test_net_missing_venv_fails_without_publishing
+PASSED tests/health/test_health_scripts.py::test_net_missing_publisher_fails
+PASSED tests/health/test_health_scripts.py::test_speedtest_good_result_publishes_retained_reading
+PASSED tests/health/test_health_scripts.py::test_speedtest_slow_result_publishes_anomaly
+PASSED tests/health/test_health_scripts.py::test_speedtest_failure_publishes_failed_anomaly
+PASSED tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[Unable to connect to "www.speedtest.net"-Unable to connect to "www.speedtest.net"]
+PASSED tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[path C:\\temp\\x failed-path C:\\temp\\x failed]
+PASSED tests/health/test_health_scripts.py::test_speedtest_failure_error_text_is_escaped[tab\there\rcr-tab here cr]
+PASSED tests/health/test_health_scripts.py::test_speedtest_server_names_are_escaped
+PASSED tests/health/test_health_scripts.py::test_speedtest_missing_venv_fails
+PASSED tests/health/test_mqtt_publish.py::test_defaults
+PASSED tests/health/test_mqtt_publish.py::test_all_options
+PASSED tests/health/test_mqtt_publish.py::test_username_without_password_sends_empty_password
+PASSED tests/health/test_mqtt_publish.py::test_publish_failure_returns_1
+PASSED tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args0]
+PASSED tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args1]
+PASSED tests/health/test_mqtt_publish.py::test_bad_arguments_exit_2[args2]
+PASSED tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_dump-data_dump-extra_args0]
+PASSED tests/postgres/test_backup_app.py::test_dump_runs_pg_dump_then_zip[/trigger_data_data_only-data_data_only-extra_args1]
+PASSED tests/postgres/test_backup_app.py::test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_dump]
+PASSED tests/postgres/test_backup_app.py::test_missing_postgres_user_returns_500_without_running_pg_dump[/trigger_data_data_only]
+PASSED tests/postgres/test_backup_app.py::test_no_hard_coded_database_users
+PASSED tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_dump]
+PASSED tests/postgres/test_backup_app.py::test_pg_dump_failure_returns_500_and_skips_zip[/trigger_data_data_only]
+PASSED tests/postgres/test_backup_app.py::test_missing_zip_binary_returns_500
+PASSED tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_dump]
+PASSED tests/postgres/test_backup_app.py::test_get_is_not_allowed[/trigger_data_data_only]
+PASSED tests/postgres/test_backup_app.py::test_backup_dir_defaults_to_backups
+PASSED tests/postgres/test_backup_app.py::test_cleanup_deletes_only_old_dump_files
+PASSED tests/postgres/test_backup_app.py::test_cleanup_boundary_is_exactly_keep_days
+PASSED tests/postgres/test_backup_app.py::test_cleanup_always_keeps_newest_of_each_type
+PASSED tests/postgres/test_backup_app.py::test_cleanup_uses_keep_days_setting
+PASSED tests/postgres/test_backup_app.py::test_cleanup_missing_dir_returns_empty
+PASSED tests/postgres/test_backup_app.py::test_cleanup_delete_error_is_logged_not_raised
+PASSED tests/postgres/test_backup_app.py::test_backup_route_runs_cleanup[/trigger_data_dump]
+PASSED tests/postgres/test_backup_app.py::test_backup_route_runs_cleanup[/trigger_data_data_only]
+PASSED tests/postgres/test_backup_app.py::test_backup_not_cleaned_up_when_dump_fails
+PASSED tests/postgres/test_backup_app.py::test_keep_days_setting[None-30]
+PASSED tests/postgres/test_backup_app.py::test_keep_days_setting[7-7]
+PASSED tests/postgres/test_backup_app.py::test_keep_days_setting[abc-30]
+PASSED tests/postgres/test_backup_app.py::test_keep_days_setting[0-30]
+PASSED tests/postgres/test_backup_app.py::test_keep_days_setting[-5-30]
+PASSED tests/postgres/test_backup_app.py::test_last_backup_defaults_to_epoch
+PASSED tests/postgres/test_backup_app.py::test_last_backup_round_trip
+PASSED tests/postgres/test_backup_app.py::test_last_backup_invalid_file_raises
+PASSED tests/postgres/test_backup_app.py::test_app_has_no_startup_or_shutdown_hooks
+PASSED tests/postgres/test_backup_app.py::test_app_does_not_import_asyncpg
+PASSED tests/quart_app/test_hass.py::test_set_light_on_calls_turn_on_with_options
+PASSED tests/quart_app/test_hass.py::test_set_light_off_calls_turn_off
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs0-state must be 'on' or 'off']
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs1-state must be 'on' or 'off']
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs2-state must be 'on' or 'off']
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs3-missing 'state' in payload]
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs4-missing 'state' in payload]
+PASSED tests/quart_app/test_hass.py::test_set_light_rejects_bad_requests[kwargs5-invalid json]
+PASSED tests/quart_app/test_hass.py::test_missing_token_returns_500_without_calling_ha
+PASSED tests/quart_app/test_hass.py::test_ha_connection_error_returns_500
+PASSED tests/quart_app/test_hass.py::test_toggle_passes_through_ha_status
+PASSED tests/quart_app/test_hass.py::test_get_state_returns_entity_json
+PASSED tests/quart_app/test_hass.py::test_get_state_passes_through_errors
+PASSED tests/quart_app/test_hass.py::test_light_ui_renders_entity
+PASSED tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[%3Cscript%3Ealert(1)%3C/script%3E-<script>alert(1)</script>-Light: &lt;script&gt;alert(1)&lt;/script&gt;-const entity = "\\u003cscript\\u003ealert(1)\\u003c/script\\u003e";]
+PASSED tests/quart_app/test_hass.py::test_light_ui_escapes_entity_id[x%22;alert(1);//-x";alert(1);//-Light: x&quot;;alert(1);//-const entity = "x\\";alert(1);//";]
+PASSED tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/set]
+PASSED tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[POST-/api/light/light.kitchen/toggle]
+PASSED tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[GET-/api/light/light.kitchen/get_state]
+PASSED tests/quart_app/test_hass.py::test_light_routes_refuse_lan_clients[GET-/ui/light/light.kitchen]
+PASSED tests/quart_app/test_hass.py::test_test_client_address_is_not_trusted_by_default
+PASSED tests/quart_app/test_hass.py::test_light_routes_allow_ipv6_localhost
+PASSED tests/quart_app/test_home.py::test_home_lists_temperature_devices_with_chart_links
+PASSED tests/quart_app/test_home.py::test_home_query_skips_device_temperature_and_guards_scalars
+PASSED tests/quart_app/test_home.py::test_home_page_renders
+PASSED tests/quart_app/test_home.py::test_home_page_renders_empty
+PASSED tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/]
+PASSED tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/temperature/zigbee/Probe]
+PASSED tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/presence]
+PASSED tests/quart_app/test_home.py::test_charts_are_open_to_lan_clients[/status]
+PASSED tests/quart_app/test_main.py::test_status
+PASSED tests/quart_app/test_main.py::test_write_message_inserts_json_payload
+PASSED tests/quart_app/test_main.py::test_write_message_swallows_db_errors
+PASSED tests/quart_app/test_main.py::test_init_db_creates_database_when_missing
+PASSED tests/quart_app/test_main.py::test_init_db_skips_create_when_database_exists
+PASSED tests/quart_app/test_main.py::test_mqtt_listener_decodes_json_and_falls_back_to_raw
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[payload0-21.5]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[payload1-19.0]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[{"temperature": 18.25}-18.25]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[payload3-None]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[payload4-None]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[not json-None]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[payload6-None]
+PASSED tests/quart_app/test_plots.py::test_extract_temperature[None-None]
+PASSED tests/quart_app/test_plots.py::test_temperature_queries_device_topic_and_builds_points
+PASSED tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[-24]
+PASSED tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=0-1]
+PASSED tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=9999-720]
+PASSED tests/quart_app/test_plots.py::test_temperature_hours_is_clamped[?hours=abc-24]
+PASSED tests/quart_app/test_plots.py::test_temperature_thins_long_series_and_keeps_last_point
+PASSED tests/quart_app/test_plots.py::test_temperature_page_renders
+PASSED tests/quart_app/test_plots.py::test_temperature_page_renders_empty
+PASSED tests/quart_app/test_plots.py::test_zigbee_temperature_queries_z2m_topic
+PASSED tests/quart_app/test_plots.py::test_zigbee_temperature_without_target
+PASSED tests/quart_app/test_plots.py::test_zigbee_temperature_page_renders_target_and_range_links
+PASSED tests/quart_app/test_plots.py::test_shelly_page_has_no_target_line
+PASSED tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/temperature/shelly1]
+PASSED tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/temperature/zigbee/Probe]
+PASSED tests/quart_app/test_plots.py::test_chart_pages_link_back_to_landing_page[/presence]
+PASSED tests/quart_app/test_plots.py::test_presence_groups_events_by_device
+PASSED tests/quart_app/test_plots.py::test_presence_page_renders
+PASSED tests/quart_app/test_plots.py::test_presence_page_renders_empty
+PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.temperature_plot]
+PASSED tests/quart_app/test_plots.py::test_get_pool_creates_once_and_caches[blueprints.presence_plot]
+FAILED tests/backup/test_offsite_backup.py::test_script_syntax - subprocess.C...
+FAILED tests/backup/test_offsite_backup.py::test_backs_up_critical_data_and_skips_noise
+FAILED tests/backup/test_offsite_backup.py::test_encrypts_with_passphrase_file
+FAILED tests/backup/test_offsite_backup.py::test_local_archive_removed_after_upload
+FAILED tests/backup/test_offsite_backup.py::test_falls_back_to_sql_dump_when_no_zip
+FAILED tests/backup/test_offsite_backup.py::test_missing_folders_warn_but_continue
+FAILED tests/backup/test_offsite_backup.py::test_fails_when_nothing_to_back_up
+FAILED tests/backup/test_offsite_backup.py::test_fails_without_passphrase - A...
+FAILED tests/backup/test_offsite_backup.py::test_gpg_failure_stops_before_upload
+FAILED tests/backup/test_offsite_backup.py::test_upload_failure_skips_pruning
+FAILED tests/backup/test_offsite_backup.py::test_prunes_to_keep_newest_and_leaves_other_files
+======================== 11 failed, 139 passed in 4.25s ========================
+RESULT: FAILED (exit 1)
