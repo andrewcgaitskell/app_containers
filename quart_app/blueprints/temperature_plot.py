@@ -16,6 +16,15 @@ DB_NAME = os.environ.get("POSTGRES_DB", "data")
 
 MAX_POINTS = 500
 
+# Every stored message for one topic ($1) over the last $2 hours, oldest first.
+HISTORY_SQL = """
+    SELECT payload, received_at
+    FROM "data".mqtt_messages
+    WHERE topic = $1
+      AND received_at >= now() - make_interval(hours => $2)
+    ORDER BY received_at
+"""
+
 
 async def get_pool():
     pool = current_app.config.get("PG_POOL")
@@ -53,6 +62,20 @@ def extract_temperature(payload):
     return None
 
 
+def thin(points, max_points):
+    """Keep every n-th point so at most max_points (+1) remain.
+
+    The last point is always kept, so the newest reading is never dropped.
+    """
+    if len(points) <= max_points:
+        return points
+    step = math.ceil(len(points) / max_points)
+    thinned = points[::step]
+    if thinned[-1] is not points[-1]:
+        thinned.append(points[-1])
+    return thinned
+
+
 def get_hours():
     return max(1, min(request.args.get("hours", 24, type=int), 720))
 
@@ -60,17 +83,7 @@ def get_hours():
 async def render_temperature(topic, title, endpoint, endpoint_args, hours, target=None):
     """Chart the temperature readings stored for one MQTT topic."""
     pool = await get_pool()
-    rows = await pool.fetch(
-        """
-        SELECT payload, received_at
-        FROM "data".mqtt_messages
-        WHERE topic = $1
-          AND received_at >= now() - make_interval(hours => $2)
-        ORDER BY received_at
-        """,
-        topic,
-        hours,
-    )
+    rows = await pool.fetch(HISTORY_SQL, topic, hours)
 
     points = []
     for row in rows:
@@ -79,12 +92,7 @@ async def render_temperature(topic, title, endpoint, endpoint_args, hours, targe
             points.append({"x": row["received_at"].isoformat(), "y": value})
 
     # Thin out long ranges so the browser isn't plotting thousands of points
-    if len(points) > MAX_POINTS:
-        step = math.ceil(len(points) / MAX_POINTS)
-        thinned = points[::step]
-        if thinned[-1] is not points[-1]:
-            thinned.append(points[-1])
-        points = thinned
+    points = thin(points, MAX_POINTS)
 
     return await render_template(
         "temperature.html",

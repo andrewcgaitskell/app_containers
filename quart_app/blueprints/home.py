@@ -27,46 +27,75 @@ def chart_url(topic):
     return None
 
 
-@bp.route("/")
-async def index():
+# Latest message per device topic that carried a temperature in the last day.
+# CASE guards jsonb_object_keys, which fails on non-object payloads.
+LATEST_SQL = r"""
+    SELECT DISTINCT ON (topic) topic, payload, received_at
+    FROM "data".mqtt_messages
+    WHERE received_at >= now() - interval '24 hours'
+      AND (topic LIKE 'zigbee2mqtt/%' OR topic LIKE 'display/device/%')
+      AND CASE WHEN jsonb_typeof(payload) = 'object' THEN
+            EXISTS (
+              SELECT 1 FROM jsonb_object_keys(payload) AS k
+              WHERE k = 'temperature'
+                 OR (k LIKE '%\_temperature' AND k NOT LIKE '%device\_temperature')
+            )
+          ELSE false END
+    ORDER BY topic, received_at DESC
+"""
+
+
+def split_topic(topic):
+    """Return (name, source) for a chartable topic, or None for any other topic."""
+    if topic.startswith(ZIGBEE_PREFIX):
+        return topic[len(ZIGBEE_PREFIX):], "Zigbee"
+    if topic.startswith(SHELLY_PREFIX):
+        return topic[len(SHELLY_PREFIX):], "Shelly"
+    return None
+
+
+async def latest_sensors():
+    """Latest temperature per sensor over the last day, sorted by name.
+
+    Shared by the landing page and /api/sensors so both list the same rows.
+    Each entry has topic, name, source, value (°C or None), target and
+    received_at (datetime).
+    """
     pool = await get_pool()
-    # Latest message per device topic that carried a temperature in the last day.
-    # CASE guards jsonb_object_keys, which fails on non-object payloads.
-    rows = await pool.fetch(
-        r"""
-        SELECT DISTINCT ON (topic) topic, payload, received_at
-        FROM "data".mqtt_messages
-        WHERE received_at >= now() - interval '24 hours'
-          AND (topic LIKE 'zigbee2mqtt/%' OR topic LIKE 'display/device/%')
-          AND CASE WHEN jsonb_typeof(payload) = 'object' THEN
-                EXISTS (
-                  SELECT 1 FROM jsonb_object_keys(payload) AS k
-                  WHERE k = 'temperature'
-                     OR (k LIKE '%\_temperature' AND k NOT LIKE '%device\_temperature')
-                )
-              ELSE false END
-        ORDER BY topic, received_at DESC
-        """
-    )
+    rows = await pool.fetch(LATEST_SQL)
 
     sensors = []
     for row in rows:
         topic = row["topic"]
-        url = chart_url(topic)
-        if url is None:
+        parts = split_topic(topic)
+        if parts is None:
             continue
-        zigbee = topic.startswith(ZIGBEE_PREFIX)
-        prefix = ZIGBEE_PREFIX if zigbee else SHELLY_PREFIX
+        name, source = parts
         sensors.append(
             {
-                "name": topic[len(prefix):],
-                "source": "Zigbee" if zigbee else "Shelly",
-                "url": url,
+                "topic": topic,
+                "name": name,
+                "source": source,
                 "value": extract_temperature(row["payload"]),
                 "target": TARGETS.get(topic),
-                "seen": row["received_at"].isoformat(),
+                "received_at": row["received_at"],
             }
         )
     sensors.sort(key=lambda s: s["name"].lower())
+    return sensors
 
+
+@bp.route("/")
+async def index():
+    sensors = [
+        {
+            "name": s["name"],
+            "source": s["source"],
+            "url": chart_url(s["topic"]),
+            "value": s["value"],
+            "target": s["target"],
+            "seen": s["received_at"].isoformat(),
+        }
+        for s in await latest_sensors()
+    ]
     return await render_template("home.html", sensors=sensors)

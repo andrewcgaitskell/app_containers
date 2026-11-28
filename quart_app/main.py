@@ -15,6 +15,8 @@ from blueprints.presence_plot import bp as presence_bp
 
 from blueprints.home import bp as home_bp
 
+from blueprints.api import bp as api_bp
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,  # Or DEBUG for more verbosity
@@ -28,6 +30,7 @@ app.register_blueprint(hass_bp)
 app.register_blueprint(temperature_bp)
 app.register_blueprint(presence_bp)
 app.register_blueprint(home_bp)
+app.register_blueprint(api_bp)
 
 # DB Connection
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")

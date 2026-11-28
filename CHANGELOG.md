@@ -6,6 +6,17 @@ History before November 2026 is in `git log`.
 
 ## [Unreleased]
 ### Added
+- Read-only JSON temperature API in `quart_app/blueprints/api.py` for the
+  M5Stack Tab5 display (issue #2), open to the LAN like the charts:
+  `GET /api/sensors` (latest reading per sensor, same rows as the landing
+  page) and `GET /api/temperature/zigbee/<name>` /
+  `GET /api/temperature/shelly/<device>` (`?hours=` 1-720, default 24;
+  `?points=` 10-1000, default 300). Points are `[epoch seconds UTC, °C to
+  2 dp]`, oldest first, thinned to at most `points` + 1 with the newest
+  reading always kept. Responses send `Cache-Control: max-age=30`. No
+  writes and no light control; the `/api/light/...` routes stay Pi-only.
+  Tests in `tests/quart_app/test_api.py`. Takes effect after
+  `docker restart quart_app`.
 - Backup cleanup in `postgres/quart/app.py`: after each successful dump,
   `data_dump_*` / `data_data_only_*` `.sql` and `.zip` files older than
   `BACKUP_KEEP_DAYS` (default 30) are deleted from `/backups`, based on the
@@ -68,6 +79,11 @@ History before November 2026 is in `git log`.
   Docker test runner now mounts `backup/` (re-run its `install` line).
 
 ### Changed
+- `quart_app` chart code shared with the new JSON API, no change to the
+  pages: the history query is now `HISTORY_SQL` and point thinning is
+  `thin()` in `blueprints/temperature_plot.py`; the landing-page query is
+  `LATEST_SQL` and its sensor list comes from `latest_sensors()` in
+  `blueprints/home.py`.
 - `quart_app` is now reachable from the LAN on port 5000: `main.py` binds to
   `QUART_HOST` (default `127.0.0.1`), set to `0.0.0.0` for the `quart_app`
   service in `compose/ha_compose.yml`. Light control (`/api/light/...`,
